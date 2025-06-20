@@ -13,7 +13,7 @@ export default function LoginScreen() {
   async function handleLogin() {
     try {
       await login(username, password);
-      router.replace('/');
+      router.push('/');
     } catch (error: any) {
       Alert.alert('Login Failed', error.error || 'Unknown error');
     }
@@ -40,7 +40,7 @@ export default function LoginScreen() {
 
       <Button title="Login" onPress={handleLogin} />
 
-      <Text style={styles.link} onPress={() => router.push('/register')}>
+      <Text style={styles.link} onPress={() => router.push('/')}>
         Don't have an account? Register here
       </Text>
     </View>
