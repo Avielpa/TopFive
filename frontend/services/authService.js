@@ -31,8 +31,9 @@ export const login = async (username, password) => {
     // שמירה של הטוקנים בזיכרון המקומי
     await AsyncStorage.setItem('accessToken', access);
     await AsyncStorage.setItem('refreshToken', refresh);
+    await AsyncStorage.setItem('username', username);
 
-    return { access, refresh };
+    return { access, refresh, username };
   } catch (error) {
     throw error.response?.data || { error: 'Login failed' };
   }
@@ -42,4 +43,5 @@ export const login = async (username, password) => {
 export const logout = async () => {
   await AsyncStorage.removeItem('accessToken');
   await AsyncStorage.removeItem('refreshToken');
+  await AsyncStorage.removeItem('username');
 };
