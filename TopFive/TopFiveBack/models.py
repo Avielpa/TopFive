@@ -1,4 +1,5 @@
 # In TopFiveBack/models.py
+from datetime import timedelta
 import random
 from django.db import models
 from django.contrib.auth.models import User
@@ -144,3 +145,29 @@ class Player(models.Model):
         verbose_name = "Player"
         verbose_name_plural = "Players"
         ordering = ['last_name', 'first_name']
+
+
+
+
+class Match(models.Model):
+    league = models.ForeignKey(League, on_delete=models.CASCADE, related_name='matches')
+    home_team = models.ForeignKey(Team, related_name='home_matches', on_delete=models.CASCADE)
+    away_team = models.ForeignKey(Team, related_name='away_matches', on_delete=models.CASCADE)
+    match_date = models.DateTimeField()
+    match_round = models.IntegerField()
+
+    home_team_score = models.IntegerField(default=0)
+    away_team_score = models.IntegerField(default=0)
+    completed = models.BooleanField(default=False)
+
+    current_quarter = models.IntegerField(default=1)
+    game_clock = models.DurationField(default=timedelta(minutes=10))
+    possession_team = models.ForeignKey(
+        Team, null=True, blank=True, on_delete=models.SET_NULL, related_name='possession_matches'
+    )
+
+    class Meta:
+        ordering = ['match_date']
+    
+    def __str__(self):
+        return f"{self.home_team} vs {self.away_team} (Round {self.match_round})"

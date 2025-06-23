@@ -1,7 +1,7 @@
 # In TopFiveBack/admin.py
 from django.contrib import admin
 from django.db.models import F
-from .models import League, Team, Player
+from .models import League, Team, Player, Match
 
 
 class RatingRangeFilter(admin.SimpleListFilter):
@@ -97,3 +97,17 @@ class LeagueAdmin(admin.ModelAdmin):
     list_display = ('name', 'level', 'status', 'current_season_year')
     list_filter = ('level', 'status')
     inlines = [TeamInline]
+
+
+
+@admin.register(Match)
+class MatchAdmin(admin.ModelAdmin):
+    list_display = [
+        'league', 'match_round', 'match_date',
+        'home_team', 'away_team',
+        'home_team_score', 'away_team_score',
+        'completed', 'current_quarter', 'possession_team'
+    ]
+    list_filter = ['league', 'completed', 'match_round']
+    search_fields = ['home_team__name', 'away_team__name']
+    ordering = ['match_date']
