@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class League(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="League Name")
     level = models.PositiveIntegerField(default=1, verbose_name="League Level")
-    current_season_year = models.PositiveIntegerField(default=2025, verbose_name="Current Season Year")
+    current_season_year = models.PositiveIntegerField(default=1, verbose_name="Current Season Year")
     STATUS_CHOICES = [
         ('PRE_SEASON', 'Pre-Season'),
         ('REGULAR_SEASON', 'Regular Season'),
