@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logout } from '../services/authService';
+import { logout } from './services/authService';
 import { useFocusEffect } from 'expo-router';
 
 
@@ -91,52 +91,16 @@ return (
         <TouchableOpacity style={styles.guestButton} onPress={() => router.push('/register')}>
           <Text style={styles.menuText}>Register</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.guestButton} onPress={() => router.push('/screens/matches/leagueScheduleScreen')}>
+          <Text style={styles.menuText}>Matches</Text>
+        </TouchableOpacity>
       </View>
     </>
   )}
 
 </ImageBackground>
 
-);
-
-//   return (
-//     <ImageBackground   
-//         source={require('../assets/logo.png')}
-//         resizeMode="cover"
-//         style={styles.backgroundImage}>
-
-//       <Text style={styles.welcomeTitle}>
-//         Welcome{username ? `, Coach ${username}` : ''} 👋
-//       </Text>
-
-
-//     <View style={styles.menu}>
-//         <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/')}>  /*'/team'
-//           <Text style={styles.menuText}>My Team</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/')}> /*'/league'
-//           <Text style={styles.menuText}>League</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/')}> /*
-//           <Text style={styles.menuText}>Matches</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/')}> /*'/transfers'
-//           <Text style={styles.menuText}>Transfers</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-//           <Text style={styles.menuText}>Log Out</Text>
-//         </TouchableOpacity>
-//     </View>
-//   </ImageBackground>
-
-
-
-// );
-}
+);}
 
 
 const styles = StyleSheet.create({

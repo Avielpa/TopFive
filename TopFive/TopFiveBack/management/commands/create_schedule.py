@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from itertools import combinations
 from datetime import timedelta
 import random
 
@@ -12,36 +11,61 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         print("==> create_schedule command is running...")
 
-        leagues = League.objects.all()
-        print("Creating leagues")
+        leagues = League.objects.all().order_by('-id')
         for league in leagues:
             self.stdout.write(f"Creating schedule for league: {league.name}")
             self.create_schedule_for_league(league)
 
     def create_schedule_for_league(self, league):
-        print("im here")
         teams = list(league.teams.all())
         num_teams = len(teams)
 
-        if num_teams < 2:
-            self.stdout.write(f"League {league.name} has less than 2 teams. Skipping...")
+        if num_teams < 2 or num_teams % 2 != 0:
+            self.stdout.write(self.style.ERROR(
+                f"League {league.name} must have even number of teams >= 2. Currently: {num_teams}"
+            ))
             return
 
-        match_date = timezone.now() + timedelta(days=1)
+        # כל המחזורים יהיו בהפרש של 3 ימים
+        base_date = timezone.now() + timedelta(days=10)
         days_between_rounds = 3
 
-        pairings = list(combinations(teams, 2))
-        random.shuffle(pairings)
+        # Randomize team order for variety
+        random.shuffle(teams)
 
-        round_num = 1
-        for home, away in pairings:
-            try:
+        rounds = []
+        num_rounds = num_teams - 1
+        half = num_teams // 2
+
+        # יצירת סיבוב ראשון
+        for round_index in range(num_rounds):
+            round_matches = []
+            for i in range(half):
+                home = teams[i]
+                away = teams[num_teams - 1 - i]
+
+                # שיבוץ רנדומלי בית/חוץ לסיבוב הראשון
+                if random.choice([True, False]):
+                    home, away = away, home
+
+                round_matches.append((home, away))
+            rounds.append(round_matches)
+
+            # רוטציה של הקבוצות (מלבד הראשונה)
+            teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+
+        current_round = 1
+        current_date = base_date
+
+        # יצירת משחקים לסיבוב הראשון
+        for round_matches in rounds:
+            for home, away in round_matches:
                 Match.objects.create(
                     league=league,
                     home_team=home,
                     away_team=away,
-                    match_date=match_date,
-                    match_round=round_num,
+                    match_date=current_date,
+                    match_round=current_round,
                     home_team_score=0,
                     away_team_score=0,
                     completed=False,
@@ -49,21 +73,18 @@ class Command(BaseCommand):
                     game_clock=timedelta(minutes=10),
                     possession_team=None
                 )
-                round_num += 1
-                match_date += timedelta(days=days_between_rounds)
-            except Exception as e:
-                self.stdout.write(self.style.ERROR(f"Error creating match: {e}"))
+            current_round += 1
+            current_date += timedelta(days=days_between_rounds)
 
-        match_date += timedelta(days=5)  # מרווח בין הסיבובים
-
-        for home, away in pairings:
-            try:
+        # יצירת סיבוב שני (היפוך בית/חוץ)
+        for round_matches in rounds:
+            for home, away in round_matches:
                 Match.objects.create(
                     league=league,
                     home_team=away,  # הפוך
                     away_team=home,
-                    match_date=match_date,
-                    match_round=round_num,
+                    match_date=current_date,
+                    match_round=current_round,
                     home_team_score=0,
                     away_team_score=0,
                     completed=False,
@@ -71,9 +92,7 @@ class Command(BaseCommand):
                     game_clock=timedelta(minutes=10),
                     possession_team=None
                 )
-                round_num += 1
-                match_date += timedelta(days=days_between_rounds)
-            except Exception as e:
-                self.stdout.write(self.style.ERROR(f"Error creating match: {e}"))
+            current_round += 1
+            current_date += timedelta(days=days_between_rounds)
 
-        self.stdout.write(self.style.SUCCESS(f"Schedule created for league: {league.name}"))
+        self.stdout.write(self.style.SUCCESS(f"✅ Schedule created for league: {league.name}"))

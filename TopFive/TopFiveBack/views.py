@@ -9,3 +9,11 @@ class MatchListByLeague(generics.ListAPIView):
     def get_queryset(self):
         league_id = self.kwargs.get('league_id')
         return Match.objects.filter(league_id=league_id).order_by('match_date')
+
+class MatchListAll(generics.ListAPIView):
+    serializer_class = MatchSerializer
+
+    def get_queryset(self):
+        return Match.objects.all().order_by('match_date')
+    
+    

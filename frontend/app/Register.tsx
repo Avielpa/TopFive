@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { register } from '../services/authService';
+import { register } from './services/authService';
 
 export default function RegisterScreen() {
   const router = useRouter();
