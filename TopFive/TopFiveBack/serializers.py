@@ -1,6 +1,6 @@
 # file: TopFiveBack/serializers.py
 from rest_framework import serializers
-from TopFiveBack.models import Match
+from .models import Match, TeamSeasonStats, Player, Team
 
 class MatchSerializer(serializers.ModelSerializer):
     home_team_name = serializers.CharField(source='home_team.name', read_only=True)
@@ -23,3 +23,30 @@ class MatchSerializer(serializers.ModelSerializer):
             'away_team_score',
             'completed',
         ]
+
+class PlayerSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(read_only=True)
+    # --- חדש: הוספת שם הקבוצה הנוכחית של השחקן ---
+    # זה יעזור לנו להציג מי המוכר, או להראות "Free Agent" אם אין קבוצה
+    team_name = serializers.CharField(source='team.name', read_only=True, allow_null=True)
+    
+    class Meta:
+        model = Player
+        fields = ['id', 'first_name', 'last_name', 'age', 'position_primary', 'rating', 'market_value', 'team_name']
+
+# New Serializer for the TeamSeasonStats model, formatted for league standings.
+class TeamSeasonStatsSerializer(serializers.ModelSerializer):
+    # Fetch the team name from the related Team object for easy display.
+    team_name = serializers.CharField(source='team.name', read_only=True)
+    # Include the calculated properties from the model.
+    win_percentage = serializers.FloatField(read_only=True)
+    points_difference = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = TeamSeasonStats
+        fields = [
+            'team_name', 'games_played', 'wins', 'losses', 
+            'points_for', 'points_against', 'points_difference', 
+            'win_percentage'
+        ]
+        

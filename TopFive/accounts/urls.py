@@ -1,10 +1,10 @@
-# accounts/urls.py
+# In TopFive/accounts/urls.py
 from django.urls import path
-from .views import RegisterView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import RegisterAndAssignTeamView, MyTokenObtainPairView
 
 urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', RegisterAndAssignTeamView.as_view(), name='register_and_assign'),
 ]

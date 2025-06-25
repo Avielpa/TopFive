@@ -4,8 +4,7 @@ import random
 from django.core.management.base import BaseCommand
 from faker import Faker
 from django.db import IntegrityError
-
-from TopFiveBack.models import League, Team, Player
+from TopFiveBack.models import League, Team, Player, TeamSeasonStats
 
 class Command(BaseCommand):
     help = 'Adds a new, complete league to the existing database without deleting any data.'
@@ -20,7 +19,7 @@ class Command(BaseCommand):
         league_count = League.objects.count()
         new_league_name = f"TopFive Division {league_count + 1}"
         new_level = league_count + 1
-
+        current_season = 1
         league = League.objects.create(
             name=new_league_name,
             level=new_level,
@@ -46,6 +45,12 @@ class Command(BaseCommand):
                     away_jersey_color=random.choice(['Black', 'Dark Blue', 'Red']),
                     budget=random.randint(25000000, 50000000)
                 )
+                TeamSeasonStats.objects.create(
+                    team=team,
+                    league=league,
+                    season=current_season
+                )
+                self.stdout.write(f"    - Initialized stats for {team.name} for season {current_season}")
                 self.stdout.write(f"  - Created Team: {team.name}")
                 
                 # --- 3. Create 12 Players for each newly created Team ---

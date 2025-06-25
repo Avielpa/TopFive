@@ -3,23 +3,19 @@
 import random
 from django.core.management.base import BaseCommand
 from faker import Faker
-
-# This import line is now corrected to your app's name: TopFiveBack
-from TopFiveBack.models import League, Team, Player
+from TopFiveBack.models import League, Team, Player, TeamSeasonStats
 
 class Command(BaseCommand):
-    help = 'Seeds the database with a full league, teams, and players.'
+    help = 'Seeds the database with a full league, teams, players, and initial stats.'
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.WARNING('Deleting old data...'))
-        # Delete existing data to start fresh
         Player.objects.all().delete()
+        TeamSeasonStats.objects.all().delete() # Also delete old stats
         Team.objects.all().delete()
         League.objects.all().delete()
 
         self.stdout.write(self.style.SUCCESS('Old data deleted. Starting to seed new data...'))
-
-        # Initialize Faker
         fake = Faker()
 
         # --- 1. Create a League ---
@@ -27,13 +23,11 @@ class Command(BaseCommand):
                                        level=1,
                                        current_season_year=1,
                                        status='PRE_SEASON')
-        
         self.stdout.write(f"Created League: {league.name}")
         
         # --- 2. Create 10 Teams for the League ---
         teams = []
         for i in range(10):
-            # Generate a cool team name using Faker
             team_name = f"{fake.city()} {random.choice(['Hawks', 'Lions', 'Eagles', 'Sharks', 'Bulls', 'Rockets', 'Giants'])}"
             team = Team.objects.create(
                 name=team_name,
@@ -47,9 +41,18 @@ class Command(BaseCommand):
             teams.append(team)
             self.stdout.write(f"  - Created Team: {team.name}")
 
+            # For each new team, create its initial season stats record.
+            TeamSeasonStats.objects.create(
+                team=team,
+                league=league,
+                season=league.current_season_year
+                # All other fields (wins, losses, etc.) will default to 0
+            )
+            self.stdout.write(f"    - Initialized stats for {team.name} for season {league.current_season_year}")
+
         # --- 3. Create 12 Players for each Team ---
         for team in teams:
-            self.stdout.write(f"    - Generating players for {team.name}...")
+            self.stdout.write(f"      - Generating players for {team.name}...")
             for _ in range(12):
                 self.create_random_player(team, fake)
         
