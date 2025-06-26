@@ -105,6 +105,7 @@ const SquadScreen = () => {
                     data={sortedPlayers}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={renderPlayerRow}
+                    contentContainerStyle={{ paddingBottom: 120 }}
                 />
             </View>
         </SafeAreaView>
