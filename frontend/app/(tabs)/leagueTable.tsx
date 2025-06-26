@@ -12,7 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 const StandingsHeader = () => (
     <View style={[styles.row, styles.headerRow]}>
         <Text style={[styles.cell, styles.headerCell, { flex: 0.7, textAlign: 'center' }]}>#</Text>
-        <Text style={[styles.cell, styles.headerCell, { flex: 3, textAlign: 'left' }]}>Team</Text>
+        <Text style={[styles.cell, styles.headerCell, { flex: 3}]}>Team</Text>
         <Text style={[styles.cell, styles.headerCell]}>W</Text>
         <Text style={[styles.cell, styles.headerCell]}>L</Text>
         <Text style={[styles.cell, styles.headerCell]}>%</Text>
@@ -24,7 +24,7 @@ const StandingsHeader = () => (
 const StandingsRow = ({ item, index }: { item: TeamStanding, index: number }) => (
     <View style={[styles.row, index % 2 === 0 ? styles.evenRow : styles.oddRow]}>
         <Text style={[styles.cell, { flex: 0.7, fontWeight: 'bold' }]}>{index + 1}</Text>
-        <Text style={[styles.cell, { flex: 3, textAlign: 'left' }]} numberOfLines={1}>{item.team_name}</Text>
+        <Text style={[styles.cell, { flex: 3, textAlign: 'center' }]} numberOfLines={1}>{item.team_name}</Text>
         <Text style={styles.cell}>{item.wins}</Text>
         <Text style={styles.cell}>{item.losses}</Text>
         <Text style={styles.cell}>{item.win_percentage.toFixed(1)}</Text>

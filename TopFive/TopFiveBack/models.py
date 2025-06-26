@@ -149,10 +149,6 @@ class Player(models.Model):
     injury_duration = models.PositiveIntegerField(default=0)
     is_retired = models.BooleanField(default=False)
     contract_years = models.PositiveIntegerField(default=1)
-    market_value = models.PositiveIntegerField(
-        default=500000, 
-        verbose_name="Market Value ($)"
-    )
     is_on_transfer_list = models.BooleanField(
         default=False, 
         verbose_name="On Transfer List",
@@ -167,7 +163,21 @@ class Player(models.Model):
             self.game_iq, self.speed, self.jumping, self.strength, self.stamina
         ]
         return round(sum(skills) / len(skills)) if skills else 0
-
+    
+    @property
+    def market_value(self):
+        base_value = (self.rating / 55) ** 4.5 * 650000
+        if self.age <= 27:
+            age_factor = 1 + ((27 - self.age) * 0.06)
+        else:
+            age_factor = max(0.2, 1 - ((self.age - 27) * 0.09))
+        if self.contract_years == 0:
+            contract_factor = 1.0
+        else:
+            contract_factor = 1 + (self.contract_years * 0.15)
+        final_value = base_value * age_factor * contract_factor
+        return round(final_value / 1000) * 1000 / 3
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name} (Rating: {self.rating})"
 

@@ -53,10 +53,9 @@ class TeamSeasonStatsSerializer(serializers.ModelSerializer):
 class FullPlayerSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
     team_name = serializers.CharField(source='team.name', read_only=True, allow_null=True)
-
+    market_value = serializers.IntegerField(read_only=True)
     class Meta:
         model = Player
-        # --- התיקון כאן: הוספת 'team_name' לרשימת השדות ---
         fields = [
             'id', 'first_name', 'last_name', 'age', 'position_primary', 'rating',
             'team_name', 'contract_years', 'market_value', 'height', 'weight',

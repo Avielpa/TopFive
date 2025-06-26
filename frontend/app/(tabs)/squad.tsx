@@ -71,6 +71,9 @@ const SquadScreen = () => {
             <SortableHeader title="Pos" sortKey="position_primary" requestSort={requestSort} sortConfig={sortConfig} />
             <SortableHeader title="Age" sortKey="age" requestSort={requestSort} sortConfig={sortConfig} />
             <SortableHeader title="Rat" sortKey="rating" requestSort={requestSort} sortConfig={sortConfig} />
+            <SortableHeader title="Market value" sortKey="market_value" requestSort={requestSort} sortConfig={sortConfig} style={{ flex: 3 }} />
+            <SortableHeader title="Height" sortKey="height" requestSort={requestSort} sortConfig={sortConfig} />
+            <SortableHeader title="Fitness" sortKey="fitness" requestSort={requestSort} sortConfig={sortConfig} />
             <SortableHeader title="Yrs" sortKey="contract_years" requestSort={requestSort} sortConfig={sortConfig} />
         </View>
     );
@@ -78,10 +81,13 @@ const SquadScreen = () => {
     const renderPlayerRow = ({ item }: { item: FullPlayer }) => (
         <TouchableOpacity onPress={() => console.log('Player pressed:', item.id)}>
             <View style={styles.playerRow}>
-                <Text style={[styles.cell, { flex: 3, textAlign: 'left' }]}>{`${item.first_name.charAt(0)}. ${item.last_name}`}</Text>
+                <Text style={[styles.cell, { flex: 3, textAlign: 'center' }]}>{`${item.first_name.charAt(0)}. ${item.last_name}`}</Text>
                 <Text style={styles.cell}>{item.position_primary}</Text>
                 <Text style={styles.cell}>{item.age}</Text>
                 <Text style={[styles.cell, styles.ratingCell]}>{item.rating}</Text>
+                <Text style={[styles.cell, { flex: 3, textAlign: 'center' }]}>{item.market_value}</Text>
+                <Text style={styles.cell}>{item.height}</Text>
+                <Text style={styles.cell}>{item.fitness}</Text>
                 <Text style={styles.cell}>{item.contract_years}</Text>
             </View>
         </TouchableOpacity>
