@@ -3,7 +3,7 @@
 from rest_framework import generics, status
 from django.db.models import F, Q
 from .models import Match, TeamSeasonStats, Player, Team 
-from .serializers import MatchSerializer, TeamSeasonStatsSerializer, PlayerSerializer
+from .serializers import MatchSerializer, TeamSeasonStatsSerializer, PlayerSerializer, FullPlayerSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -94,3 +94,20 @@ class BuyPlayerView(APIView):
             'detail': f'Success! {player_to_buy.first_name} {player_to_buy.last_name} is now part of {buying_team.name}.',
             'new_budget': buying_team.budget
         }, status=status.HTTP_200_OK)
+    
+
+class SquadView(generics.ListAPIView):
+    """
+    This view returns all players belonging to the currently authenticated user's team.
+    """
+    serializer_class = FullPlayerSerializer # Use the new detailed serializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        try:
+            # Get the team associated with the requesting user
+            user_team = self.request.user.team
+            return Player.objects.filter(team=user_team)
+        except Team.DoesNotExist:
+            # If user for some reason has no team, return an empty list
+            return Player.objects.none()

@@ -50,3 +50,22 @@ class TeamSeasonStatsSerializer(serializers.ModelSerializer):
             'win_percentage'
         ]
         
+class FullPlayerSerializer(serializers.ModelSerializer):
+    """
+    A detailed serializer for a player, including all skills and attributes,
+    perfect for the squad management screen.
+    """
+    rating = serializers.IntegerField(read_only=True)
+    team_name = serializers.CharField(source='team.name', read_only=True, allow_null=True)
+
+    class Meta:
+        model = Player
+        # Including all fields for a comprehensive view of the player
+        fields = [
+            'id', 'first_name', 'last_name', 'age', 'position_primary', 'rating',
+            'contract_years', 'market_value', 'height', 'weight',
+            'shooting_2p', 'shooting_3p', 'free_throws', 'rebound_def',
+            'rebound_off', 'passing', 'blocking', 'defense', 'game_iq',
+            'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured'
+        ]
+

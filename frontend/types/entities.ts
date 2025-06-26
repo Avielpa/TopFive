@@ -19,3 +19,25 @@ export interface Player {
     market_value: number;
     team_name: string | null;
 }
+
+export interface FullPlayer extends Player {
+    height: number;
+    weight: number;
+    contract_years: number;
+    fitness: number;
+    is_injured: boolean;
+    shooting_2p: number;
+    shooting_3p: number;
+    free_throws: number;
+    rebound_def: number;
+    rebound_off: number;
+    passing: number;
+    blocking: number;
+    defense: number;
+    game_iq: number;
+    speed: number;
+    jumping: number;
+    strength: number;
+    stamina: number;
+}
+

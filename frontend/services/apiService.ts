@@ -5,9 +5,8 @@
 //              all requests are authenticated automatically.
 // ==============================================================================
 import axios, { AxiosError } from 'axios';
-// --- שינוי 1: ייבוא ה-instance המרכזי 'api' ---
 import api from './api';
-import { Player, TeamStanding } from '../types/entities';
+import { Player, TeamStanding, FullPlayer } from '../types/entities';
 
 // --- שינוי 2: אין יותר צורך ב-API_URL מקומי ---
 // const API_URL = 'http://10.0.2.2:8000/api';
@@ -51,3 +50,15 @@ export const buyPlayer = async (playerId: number) => {
         // ... (טיפול בשגיאות)
     }
 };
+
+
+export const getSquad = async (): Promise<FullPlayer[]> => {
+    try {
+        const response = await api.get<FullPlayer[]>('/team/squad/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching squad:', error);
+        throw error;
+    }
+};
+
