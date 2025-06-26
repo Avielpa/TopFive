@@ -20,7 +20,6 @@ export interface Player {
     team_name: string | null;
 }
 
-<<<<<<< HEAD
 export interface Match {
   id: any;
   is_finished: any;
@@ -32,7 +31,6 @@ export interface Match {
   away_team_score: number;      // נקודות קבוצה אורחת
   completed: boolean;           // האם המשחק הסתיים
 }
-=======
 export interface FullPlayer extends Player {
     height: number;
     weight: number;
@@ -54,4 +52,3 @@ export interface FullPlayer extends Player {
     stamina: number;
 }
 
->>>>>>> d688e1e2245718ffcda3e4100ddac92707a6179f

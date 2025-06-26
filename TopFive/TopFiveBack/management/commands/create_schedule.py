@@ -5,6 +5,7 @@ import random
 
 from TopFiveBack.models import League, Match
 
+
 class Command(BaseCommand):
     help = "Create a round-robin schedule for each league"
 
@@ -26,40 +27,53 @@ class Command(BaseCommand):
             ))
             return
 
-        # כל המחזורים יהיו בהפרש של 3 ימים
         base_date = timezone.now() + timedelta(days=10)
         days_between_rounds = 3
 
-        # Randomize team order for variety
         random.shuffle(teams)
 
         rounds = []
         num_rounds = num_teams - 1
         half = num_teams // 2
 
-        # יצירת סיבוב ראשון
+        # שלב 1: צור זוגות למחזורי הליגה
         for round_index in range(num_rounds):
             round_matches = []
             for i in range(half):
                 home = teams[i]
                 away = teams[num_teams - 1 - i]
-
-                # שיבוץ רנדומלי בית/חוץ לסיבוב הראשון
-                if random.choice([True, False]):
-                    home, away = away, home
-
                 round_matches.append((home, away))
             rounds.append(round_matches)
-
-            # רוטציה של הקבוצות (מלבד הראשונה)
             teams = [teams[0]] + [teams[-1]] + teams[1:-1]
 
         current_round = 1
         current_date = base_date
+        first_rounds = []
 
-        # יצירת משחקים לסיבוב הראשון
+        # שלב 2: צור סיבוב ראשון עם איזון רנדומלי של בית/חוץ
         for round_matches in rounds:
+            balanced_round = []
+            home_count = 0
+            away_count = 0
+
             for home, away in round_matches:
+                if home_count >= 5:
+                    balanced_round.append((away, home))
+                    away_count += 1
+                elif away_count >= 5:
+                    balanced_round.append((home, away))
+                    home_count += 1
+                else:
+                    if random.choice([True, False]):
+                        balanced_round.append((home, away))
+                        home_count += 1
+                    else:
+                        balanced_round.append((away, home))
+                        away_count += 1
+
+            first_rounds.append(balanced_round)
+
+            for home, away in balanced_round:
                 Match.objects.create(
                     league=league,
                     home_team=home,
@@ -76,12 +90,12 @@ class Command(BaseCommand):
             current_round += 1
             current_date += timedelta(days=days_between_rounds)
 
-        # יצירת סיבוב שני (היפוך בית/חוץ)
-        for round_matches in rounds:
+        # שלב 3: צור סיבוב שני – היפוך בית/חוץ
+        for round_matches in first_rounds:
             for home, away in round_matches:
                 Match.objects.create(
                     league=league,
-                    home_team=away,  # הפוך
+                    home_team=away,  # היפוך
                     away_team=home,
                     match_date=current_date,
                     match_round=current_round,
