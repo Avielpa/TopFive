@@ -3,7 +3,7 @@
 // Description: Adding the new tabs to the main navigation bar.
 // ==============================================================================
 import { Tabs } from 'expo-router';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   return (
@@ -26,13 +26,19 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="squad" 
+        options={{
+          title: 'Squad',
+          tabBarIcon: ({ color, size }) => <AntDesign name="team" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="leagueTable" // This will render the league.tsx file
         options={{
           title: 'League',
           tabBarIcon: ({ color, size }) => <Feather name="trello" size={size} color={color} />,
         }}
       />
-
       <Tabs.Screen
         name="transferMarket" // שם הקובץ החדש
         options={{

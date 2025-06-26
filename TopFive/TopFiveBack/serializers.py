@@ -50,3 +50,18 @@ class TeamSeasonStatsSerializer(serializers.ModelSerializer):
             'win_percentage'
         ]
         
+class FullPlayerSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(read_only=True)
+    team_name = serializers.CharField(source='team.name', read_only=True, allow_null=True)
+
+    class Meta:
+        model = Player
+        # --- התיקון כאן: הוספת 'team_name' לרשימת השדות ---
+        fields = [
+            'id', 'first_name', 'last_name', 'age', 'position_primary', 'rating',
+            'team_name', 'contract_years', 'market_value', 'height', 'weight',
+            'shooting_2p', 'shooting_3p', 'free_throws', 'rebound_def',
+            'rebound_off', 'passing', 'blocking', 'defense', 'game_iq',
+            'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured'
+        ]
+

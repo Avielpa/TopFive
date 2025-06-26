@@ -99,7 +99,7 @@ export default function TransferMarketScreen() {
                 data={players}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => <PlayerRow item={item} onBuy={handleBuyPlayer} />}
-                contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20 }}
+                contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 120 }}
             />
         </SafeAreaView>
     );
