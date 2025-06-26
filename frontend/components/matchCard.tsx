@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Match } from '../types/matchTypes';
+import { Match } from '../types/entities';
 
 interface Props {
   match: Match;

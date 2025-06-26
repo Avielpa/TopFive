@@ -3,7 +3,7 @@
 // Description: Adding the new tabs to the main navigation bar.
 // ==============================================================================
 import { Tabs } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   return (
@@ -38,6 +38,13 @@ export default function TabsLayout() {
         options={{
           title: 'Transfers', // שם חדש לטאב
           tabBarIcon: ({ color, size }) => <Feather name="shopping-cart" size={size} color={color} />, // אייקון חדש
+        }}
+      />
+      <Tabs.Screen
+        name="leagueScheduleScreen" 
+        options={{
+          title: 'Schedule', 
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="basketball" size={size} color={color} />,
         }}
       />
     </Tabs>
