@@ -7,6 +7,7 @@
 import axios, { AxiosError } from 'axios';
 import api from './api';
 import { Player, TeamStanding, FullPlayer } from '../types/entities';
+// services/apiService.ts
 
 // --- שינוי 2: אין יותר צורך ב-API_URL מקומי ---
 // const API_URL = 'http://10.0.2.2:8000/api';
@@ -61,4 +62,27 @@ export const getSquad = async (): Promise<FullPlayer[]> => {
         throw error;
     }
 };
+
+
+
+export type LineupPosition = 'pg' | 'sg' | 'sf' | 'pf' | 'c';
+
+export interface LineupData {
+  pg: FullPlayer | null;
+  sg: FullPlayer | null;
+  sf: FullPlayer | null;
+  pf: FullPlayer | null;
+  c: FullPlayer | null;
+}
+
+export const getTeamLineup = async (): Promise<LineupData> => {
+  const response = await api.get('/team/lineup/');
+  return response.data;
+};
+
+export const updateTeamLineup = async (playerIds: { [K in `${LineupPosition}_id`]?: number }) => {
+  const response = await api.post('/team/lineup/', playerIds);
+  return response.data;
+};
+
 

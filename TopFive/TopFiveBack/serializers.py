@@ -65,3 +65,28 @@ class FullPlayerSerializer(serializers.ModelSerializer):
             'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured'
         ]
 
+# serializers.py
+from rest_framework import serializers
+from .models import TeamLineup, Player
+
+class PlayerMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ['id', 'first_name', 'last_name', 'rating', 'position_primary']
+
+class TeamLineupSerializer(serializers.ModelSerializer):
+    pg = PlayerMiniSerializer(read_only=True)
+    sg = PlayerMiniSerializer(read_only=True)
+    sf = PlayerMiniSerializer(read_only=True)
+    pf = PlayerMiniSerializer(read_only=True)
+    c = PlayerMiniSerializer(read_only=True)
+
+    pg_id = serializers.IntegerField(write_only=True, required=False)
+    sg_id = serializers.IntegerField(write_only=True, required=False)
+    sf_id = serializers.IntegerField(write_only=True, required=False)
+    pf_id = serializers.IntegerField(write_only=True, required=False)
+    c_id = serializers.IntegerField(write_only=True, required=False)
+
+    class Meta:
+        model = TeamLineup
+        fields = ['pg', 'sg', 'sf', 'pf', 'c', 'pg_id', 'sg_id', 'sf_id', 'pf_id', 'c_id']

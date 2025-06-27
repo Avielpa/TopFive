@@ -199,3 +199,16 @@ class Match(models.Model):
     
     def __str__(self):
         return f"{self.home_team} vs {self.away_team} (Round {self.match_round})"
+    
+
+class TeamLineup(models.Model):
+    team = models.OneToOneField(Team, on_delete=models.CASCADE, related_name='lineup')
+    pg = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lineup_pg')
+    sg = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lineup_sg')
+    sf = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lineup_sf')
+    pf = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lineup_pf')
+    c = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='lineup_c')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.team.name} Lineup"

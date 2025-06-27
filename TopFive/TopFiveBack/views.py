@@ -7,6 +7,14 @@ from .serializers import MatchSerializer, TeamSeasonStatsSerializer, PlayerSeria
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .models import TeamLineup, Player
+from .serializers import TeamLineupSerializer
+from rest_framework.decorators import api_view
+
 
 class MatchListByLeague(generics.ListAPIView):
     serializer_class = MatchSerializer
@@ -111,3 +119,72 @@ class SquadView(generics.ListAPIView):
         except Team.DoesNotExist:
             # If user for some reason has no team, return an empty list
             return Player.objects.none()
+
+
+
+
+class TeamLineupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        team = request.user.team
+        lineup, _ = TeamLineup.objects.get_or_create(team=team)
+        serializer = TeamLineupSerializer(lineup)
+        return Response(serializer.data)
+
+    def post(self, request):
+        team = request.user.team
+        lineup, _ = TeamLineup.objects.get_or_create(team=team)
+
+        for pos in ['pg', 'sg', 'sf', 'pf', 'c']:
+            player_id = request.data.get(f'{pos}_id')
+            if player_id:
+                try:
+                    player = Player.objects.get(id=player_id, team=team)
+                    setattr(lineup, pos, player)
+                except Player.DoesNotExist:
+                    return Response({'error': f'Invalid player for position {pos.upper()}'}, status=400)
+
+        lineup.save()
+        serializer = TeamLineupSerializer(lineup)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET'])
+def team_lineup(request):
+    try:
+        team = request.user.team
+        lineup = TeamLineup.objects.get(team=team)
+
+        data = {
+            'pg': FullPlayerSerializer(lineup.pg).data if lineup.pg else None,
+            'sg': FullPlayerSerializer(lineup.sg).data if lineup.sg else None,
+            'sf': FullPlayerSerializer(lineup.sf).data if lineup.sf else None,
+            'pf': FullPlayerSerializer(lineup.pf).data if lineup.pf else None,
+            'c': FullPlayerSerializer(lineup.c).data if lineup.c else None,
+        }
+        return Response(data)
+    except TeamLineup.DoesNotExist:
+        return Response({"detail": "Lineup not found."}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def team_bench(request):
+    try:
+        team = request.user.team
+        lineup = TeamLineup.objects.get(team=team)
+
+        bench_players = Player.objects.filter(team=team).exclude(
+            id__in=[
+                lineup.pg.id if lineup.pg else None,
+                lineup.sg.id if lineup.sg else None,
+                lineup.sf.id if lineup.sf else None,
+                lineup.pf.id if lineup.pf else None,
+                lineup.c.id if lineup.c else None
+            ]
+        )
+
+        serializer = FullPlayerSerializer(bench_players, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
