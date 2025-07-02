@@ -12,6 +12,7 @@ export interface UserInfo {
     league_id: number | null;
     league_name: string | null;
     budget: number | null;
+    overall_rating: number | null;
 }
 
 // 2. המבנה המדויק של התגובה מה-API של ההתחברות (חדש)

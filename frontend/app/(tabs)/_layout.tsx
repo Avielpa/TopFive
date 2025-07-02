@@ -1,14 +1,11 @@
-// ==============================================================================
 // File: frontend/app/(tabs)/_layout.tsx (Updated)
-// Description: Adding the new tabs to the main navigation bar.
-// ==============================================================================
 import { Tabs } from 'expo-router';
 import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function TabsLayout() {
   return (
-    <GestureHandlerRootView style = {{flex:1}}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -28,13 +25,6 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="squad" 
-          options={{
-            title: 'Squad',
-            tabBarIcon: ({ color, size }) => <AntDesign name="team" size={size} color={color} />,
-          }}
-        />
-        <Tabs.Screen
           name="leagueTable" // This will render the league.tsx file
           options={{
             title: 'League',
@@ -49,10 +39,17 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="leagueScheduleScreen" 
+          name="leagueScheduleScreen"
           options={{
-            title: 'Schedule', 
+            title: 'Schedule',
             tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="basketball" size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="match/[id]"
+          options={{
+            href: null,
+            headerShown: false, 
           }}
         />
       </Tabs>

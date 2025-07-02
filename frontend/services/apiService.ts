@@ -6,7 +6,7 @@
 // ==============================================================================
 import axios, { AxiosError } from 'axios';
 import api from './api';
-import { Player, TeamStanding, FullPlayer } from '../types/entities';
+import { Player, TeamStanding, FullPlayer, Match } from '../types/entities';
 // services/apiService.ts
 
 // --- שינוי 2: אין יותר צורך ב-API_URL מקומי ---
@@ -63,26 +63,15 @@ export const getSquad = async (): Promise<FullPlayer[]> => {
     }
 };
 
-
-
-export type LineupPosition = 'pg' | 'sg' | 'sf' | 'pf' | 'c';
-
-export interface LineupData {
-  pg: FullPlayer | null;
-  sg: FullPlayer | null;
-  sf: FullPlayer | null;
-  pf: FullPlayer | null;
-  c: FullPlayer | null;
+export const getMatches = async (leagueID:number)=> {
+    try{
+        const response = await api.get<Match[]>(`matches/${leagueID}/`);
+        return response.data
+    }catch (err){
+        console.error("Error Fetch Matches");
+    }
 }
 
-export const getTeamLineup = async (): Promise<LineupData> => {
-  const response = await api.get('/team/lineup/');
-  return response.data;
-};
 
-export const updateTeamLineup = async (playerIds: { [K in `${LineupPosition}_id`]?: number }) => {
-  const response = await api.post('/team/lineup/', playerIds);
-  return response.data;
-};
 
 
