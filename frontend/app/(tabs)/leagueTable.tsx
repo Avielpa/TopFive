@@ -82,7 +82,6 @@ export default function LeagueScreen() {
             </View>
         );
     }
-    // ... (שאר הקוד נשאר זהה)
     if (error) {
         return (
             <View style={[styles.container, styles.center]}>

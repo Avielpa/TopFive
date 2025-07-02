@@ -7,6 +7,13 @@ from .serializers import MatchSerializer, TeamSeasonStatsSerializer, PlayerSeria
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .models import Player
+
+
 
 class MatchListByLeague(generics.ListAPIView):
     serializer_class = MatchSerializer
@@ -111,3 +118,6 @@ class SquadView(generics.ListAPIView):
         except Team.DoesNotExist:
             # If user for some reason has no team, return an empty list
             return Player.objects.none()
+
+
+

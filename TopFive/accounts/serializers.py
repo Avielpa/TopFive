@@ -85,8 +85,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'username': user.username,
                 'team_id': team.id,
                 'team_name': team.name,
-                'league_id': team.league.id, # <-- זה השדה שאנחנו צריכים!
+                'league_id': team.league.id, 
                 'league_name': team.league.name,
+                'overall_rating' : team.overall_rating
             }
         except AttributeError: # יקרה אם למשתמש אין קבוצה משויכת
              data['user_info'] = {

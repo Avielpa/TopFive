@@ -31,7 +31,9 @@ export interface Match {
   away_team_score: number;      // נקודות קבוצה אורחת
   completed: boolean;           // האם המשחק הסתיים
 }
+
 export interface FullPlayer extends Player {
+    photo: string;
     height: number;
     weight: number;
     contract_years: number;
@@ -51,4 +53,6 @@ export interface FullPlayer extends Player {
     strength: number;
     stamina: number;
 }
+
+
 

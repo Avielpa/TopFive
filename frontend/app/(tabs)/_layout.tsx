@@ -1,14 +1,15 @@
-// ==============================================================================
 // File: frontend/app/(tabs)/_layout.tsx (Updated)
-// Description: Adding the new tabs to the main navigation bar.
-// ==============================================================================
 import { Tabs } from 'expo-router';
 import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function TabsLayout() {
   return (
+<<<<<<< HEAD
     <GestureHandlerRootView style = {{flex:1}}>
+=======
+    <GestureHandlerRootView style={{ flex: 1 }}>
+>>>>>>> b0300763b8152c9e9c47583679e8393e5cc42d6c
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -28,6 +29,7 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+<<<<<<< HEAD
           name="squad" 
           options={{
             title: 'Squad',
@@ -35,6 +37,8 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+=======
+>>>>>>> b0300763b8152c9e9c47583679e8393e5cc42d6c
           name="leagueTable" // This will render the league.tsx file
           options={{
             title: 'League',
@@ -49,12 +53,28 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+<<<<<<< HEAD
           name="leagueScheduleScreen" 
           options={{
             title: 'Schedule', 
             tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="basketball" size={size} color={color} />,
           }}
         />
+=======
+          name="leagueScheduleScreen"
+          options={{
+            title: 'Schedule',
+            tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="basketball" size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="match/[id]"
+          options={{
+            href: null,
+            headerShown: false, 
+          }}
+        />
+>>>>>>> b0300763b8152c9e9c47583679e8393e5cc42d6c
       </Tabs>
     </GestureHandlerRootView>
   );

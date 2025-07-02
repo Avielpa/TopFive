@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@headlessui/react": "^2.2.4",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.13",
     "@react-navigation/native-stack": "^7.3.18",
+    "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "expo": "~53.0.12",
@@ -25,6 +27,7 @@
     "expo-font": "~13.3.1",
     "expo-haptics": "~14.1.4",
     "expo-image": "~2.3.0",
+    "expo-linear-gradient": "~14.1.5",
     "expo-linking": "~7.1.5",
     "expo-router": "~5.1.0",
     "expo-screen-orientation": "~8.1.7",
@@ -36,13 +39,22 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.4",
+    "react-native-animatable": "^1.4.0",
+    "react-native-draggable-flatlist": "^4.0.3",
+    "react-native-drax": "^0.10.3",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
+    "react-native-svg": "^15.12.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
+<<<<<<< HEAD
     "@react-native-community/slider": "4.5.6"
+=======
+    "tailwindcss": "^4.1.11",
+    "expo-dev-client": "~5.2.2"
+>>>>>>> b0300763b8152c9e9c47583679e8393e5cc42d6c
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -1,6 +1,6 @@
 # file: TopFiveBack/serializers.py
 from rest_framework import serializers
-from .models import Match, TeamSeasonStats, Player, Team
+from .models import Match, TeamSeasonStats, Player
 
 class MatchSerializer(serializers.ModelSerializer):
     home_team_name = serializers.CharField(source='home_team.name', read_only=True)
@@ -47,7 +47,7 @@ class TeamSeasonStatsSerializer(serializers.ModelSerializer):
         fields = [
             'team_name', 'games_played', 'wins', 'losses', 
             'points_for', 'points_against', 'points_difference', 
-            'win_percentage'
+            'win_percentage',
         ]
         
 class FullPlayerSerializer(serializers.ModelSerializer):

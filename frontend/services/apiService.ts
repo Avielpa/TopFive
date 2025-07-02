@@ -6,7 +6,8 @@
 // ==============================================================================
 import axios, { AxiosError } from 'axios';
 import api from './api';
-import { Player, TeamStanding, FullPlayer } from '../types/entities';
+import { Player, TeamStanding, FullPlayer, Match } from '../types/entities';
+// services/apiService.ts
 
 // --- שינוי 2: אין יותר צורך ב-API_URL מקומי ---
 // const API_URL = 'http://10.0.2.2:8000/api';
@@ -61,4 +62,16 @@ export const getSquad = async (): Promise<FullPlayer[]> => {
         throw error;
     }
 };
+
+export const getMatches = async (leagueID:number)=> {
+    try{
+        const response = await api.get<Match[]>(`matches/${leagueID}/`);
+        return response.data
+    }catch (err){
+        console.error("Error Fetch Matches");
+    }
+}
+
+
+
 
