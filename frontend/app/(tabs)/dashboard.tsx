@@ -1,18 +1,14 @@
-// ==============================================================================
-// File: frontend/app/(tabs)/dashboard.tsx (WITH "ESCAPE HATCH" LOGIC)
-// Description: This screen now handles incomplete user data gracefully,
-//              providing a way for the user to log out if their account
-//              is not fully configured.
-// ==============================================================================
+// In frontend/app/(tabs)/dashboard.tsx
 
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Button, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { useRouter } from 'expo-router';
 
 export default function DashboardScreen() {
-    // קבלת כל המידע הרלוונטי מה-Context
     const { userInfo, isLoading, logout } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
@@ -71,7 +67,19 @@ export default function DashboardScreen() {
                     </View>
                 </View>
             </View>
-            {/* שאר הקוד של מסך הבית יכול להופיע כאן */}
+            <View style={styles.card}>
+                 <View style={styles.rosterHeaderContainer}>
+                    <Text style={styles.rosterHeader}>Starting Lineup</Text>
+                    <TouchableOpacity 
+                        style={styles.manageButton}
+                        onPress={() => router.push('/manageLineup')}
+                    >
+                        <Text style={styles.manageButtonText}>Manage Lineup</Text>
+                    </TouchableOpacity>
+                 </View>
+                 {/* ... רשימת השחקנים ... */}
+            </View>
+            <Button title="Logout" onPress={logout} color="#FFA726" />
         </ScrollView>
     );
 }
@@ -89,7 +97,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#0F172A',
     },
-    // --- עיצובים חדשים עבור מסך השגיאה ---
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -159,5 +166,26 @@ const styles = StyleSheet.create({
     },
     ratingContainer: {
         alignItems: 'flex-end',
+    },
+    rosterHeaderContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    rosterHeader: { 
+        fontSize: 20, 
+        color: '#FFFFFF', 
+        fontWeight: 'bold', 
+    },
+    manageButton: {
+        backgroundColor: '#334155',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 6,
+    },
+    manageButtonText: {
+        color: '#F1F5F9',
+        fontWeight: '600',
     },
 });

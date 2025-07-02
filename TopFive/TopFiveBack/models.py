@@ -35,7 +35,30 @@ class Team(models.Model):
     away_jersey_color = models.CharField(max_length=50, verbose_name="Away Jersey Color")
     titles = models.PositiveIntegerField(default=0, verbose_name="Championships")
     budget = models.PositiveIntegerField(default=1000000, verbose_name="Budget (in $)")
+    # Team tactics
+    # 1. זהות קבוצתית (Team DNA)
+    pace = models.PositiveIntegerField(default=3, verbose_name="Pace (1-5)")
+    OFFENSIVE_FOCUS_CHOICES = [('INSIDE', 'Inside Focus'), ('OUTSIDE', 'Outside Focus')]
+    offensive_focus = models.CharField(max_length=10, choices=OFFENSIVE_FOCUS_CHOICES, default='OUTSIDE')
+    defensive_aggressiveness = models.PositiveIntegerField(default=3, verbose_name="Aggressiveness (1-5)")
 
+    go_to_guy = models.ForeignKey(
+        'Player', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='+',
+        verbose_name="Go-To Guy"
+    )
+    defensive_stopper = models.ForeignKey(
+        'Player', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='+',
+        verbose_name="Defensive Stopper"
+    )
+    
     def __str__(self):
         return self.name
 
@@ -154,6 +177,47 @@ class Player(models.Model):
         verbose_name="On Transfer List",
         help_text="If checked, this player will appear on the transfer market even if they have a team."
     )
+
+    STARTER = 'STARTER'
+    BENCH = 'BENCH'
+    RESERVE = 'RESERVE'
+
+    ROLE_CHOICES = [
+        (STARTER, 'Starter'),
+        (BENCH, 'Bench'),
+        (RESERVE, 'Reserve'),
+    ]
+
+    role = models.CharField(
+        max_length=10, 
+        choices=[('STARTER', 'Starter'), ('BENCH', 'Bench'), ('RESERVE', 'Reserve')], 
+        default='RESERVE',
+        verbose_name="Player Role"
+    )
+
+    PRIMARY_SCORER = 'PRIMARY'
+    SECONDARY_SCORER = 'SECONDARY'
+    ROLE_PLAYER = 'ROLE'
+    DO_NOT_SHOOT = 'DND' # Do Not Dare to shoot :)
+    
+    OFFENSIVE_ROLE_CHOICES = [
+        (PRIMARY_SCORER, 'First Option'),
+        (SECONDARY_SCORER, 'Second Option'),
+        (ROLE_PLAYER, 'Role Player'),
+        (DO_NOT_SHOOT, 'Don\'t Shoot'),
+    ]
+
+    offensive_role = models.CharField(
+        max_length=10, 
+        choices=OFFENSIVE_ROLE_CHOICES, 
+        default=ROLE_PLAYER,
+        verbose_name="Offensive Role"
+    )
+
+    assigned_minutes = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Assigned Minutes"
+    )
     
     @property
     def rating(self):
@@ -209,3 +273,4 @@ class Match(models.Model):
     
     def __str__(self):
         return f"{self.home_team} vs {self.away_team} (Round {self.match_round})"
+    
