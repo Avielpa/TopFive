@@ -49,12 +49,9 @@
     "react-native-svg": "^15.12.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-<<<<<<< HEAD
-    "@react-native-community/slider": "4.5.6"
-=======
+    "@react-native-community/slider": "4.5.6",
     "tailwindcss": "^4.1.11",
     "expo-dev-client": "~5.2.2"
->>>>>>> b0300763b8152c9e9c47583679e8393e5cc42d6c
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

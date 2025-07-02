@@ -273,9 +273,6 @@ class Match(models.Model):
     
     def __str__(self):
         return f"{self.home_team} vs {self.away_team} (Round {self.match_round})"
-<<<<<<< HEAD
     
-=======
     
 
->>>>>>> b0300763b8152c9e9c47583679e8393e5cc42d6c
