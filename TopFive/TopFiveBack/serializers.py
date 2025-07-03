@@ -1,6 +1,6 @@
-# file: TopFiveBack/serializers.py
+# file: TopFiveBack/serializers.py (UPDATED)
 from rest_framework import serializers
-from .models import Match, TeamSeasonStats, Player
+from .models import Match, TeamSeasonStats, Player # וודא שכל המודלים מיובאים
 
 class MatchSerializer(serializers.ModelSerializer):
     home_team_name = serializers.CharField(source='home_team.name', read_only=True)
@@ -24,21 +24,17 @@ class MatchSerializer(serializers.ModelSerializer):
             'completed',
         ]
 
+
 class PlayerSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
-    # --- חדש: הוספת שם הקבוצה הנוכחית של השחקן ---
-    # זה יעזור לנו להציג מי המוכר, או להראות "Free Agent" אם אין קבוצה
     team_name = serializers.CharField(source='team.name', read_only=True, allow_null=True)
     
     class Meta:
         model = Player
         fields = ['id', 'first_name', 'last_name', 'age', 'position_primary', 'rating', 'market_value', 'team_name']
 
-# New Serializer for the TeamSeasonStats model, formatted for league standings.
 class TeamSeasonStatsSerializer(serializers.ModelSerializer):
-    # Fetch the team name from the related Team object for easy display.
     team_name = serializers.CharField(source='team.name', read_only=True)
-    # Include the calculated properties from the model.
     win_percentage = serializers.FloatField(read_only=True)
     points_difference = serializers.IntegerField(read_only=True)
 
@@ -53,7 +49,8 @@ class TeamSeasonStatsSerializer(serializers.ModelSerializer):
 class FullPlayerSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
     team_name = serializers.CharField(source='team.name', read_only=True, allow_null=True)
-    market_value = serializers.IntegerField(read_only=True)
+    market_value = serializers.IntegerField(read_only=True) # וודא שזה Read-Only כי הוא מחושב במודל
+    
     class Meta:
         model = Player
         fields = [
@@ -61,6 +58,7 @@ class FullPlayerSerializer(serializers.ModelSerializer):
             'team_name', 'contract_years', 'market_value', 'height', 'weight',
             'shooting_2p', 'shooting_3p', 'free_throws', 'rebound_def',
             'rebound_off', 'passing', 'blocking', 'defense', 'game_iq',
-            'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured'
+            'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured',
+            # גם role ו-offensive_role אם אתה רוצה שהם יהיו זמינים כאן:
+            # 'role', 'offensive_role', 'assigned_minutes', 
         ]
-

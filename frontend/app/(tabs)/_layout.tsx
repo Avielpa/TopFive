@@ -59,6 +59,13 @@ export default function TabsLayout() {
             headerShown: false, 
           }}
         />
+        <Tabs.Screen
+          name="manageLineup"
+          options={{
+            href: null,
+            headerShown: false, 
+          }}
+        />
       </Tabs>
     </GestureHandlerRootView>
   );

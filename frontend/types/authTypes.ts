@@ -11,7 +11,7 @@ export interface UserInfo {
     team_name: string | null;
     league_id: number | null;
     league_name: string | null;
-    budget: number | null;
+    budget: any;
     overall_rating: number | null;
 }
 

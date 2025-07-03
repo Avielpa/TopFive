@@ -1,7 +1,5 @@
 // ==============================================================================
-// File: frontend/context/AuthContext.tsx (FULLY TYPE-SAFE & FIXED)
-// Description: This final version correctly types the state and context
-//              to resolve all TypeScript errors.
+// File: frontend/context/AuthContext.tsx (FIXED AND READY FOR API.TS INTEGRATION)
 // ==============================================================================
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
@@ -9,8 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as authService from '../services/authService';
 import { RegisterDetails, UserInfo, LoginResponse } from '../types/authTypes';
 
-// --- שינוי 1: הגדרת הטיפוסים למצב ולאובייקט ה-Context ---
-// הגדרת המצב הכללי של האימות
 interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
@@ -19,15 +15,13 @@ interface AuthState {
     isLoading: boolean;
 }
 
-// הגדרת הערכים שה-Context יספק
 interface AuthContextType extends AuthState {
     login: (username: string, password: string) => Promise<void>;
     registerAndAssignTeam: (details: RegisterDetails) => Promise<any>;
-    logout: () => void;
+    logout: () => Promise<void>; // <--- שינוי: פונקציית logout היא כעת Promise<void>
     updateUserInfo: (newInfo: Partial<UserInfo>) => void;
 }
 
-// --- שינוי 2: יצירת ה-Context עם הטיפוס הנכון ---
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function useAuth() {
@@ -43,8 +37,6 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    // --- שינוי 3: הוספת הטיפוס <AuthState> ל-useState ---
-    // זה אומר ל-TypeScript שהמצב שלנו יכול להכיל גם null וגם ערכים אחרים
     const [authState, setAuthState] = useState<AuthState>({
         accessToken: null,
         refreshToken: null,
@@ -86,7 +78,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         loadUserFromStorage();
     }, []);
 
-    // --- שינוי 4: הוספת טיפוסים מפורשים לפרמטרים של login ---
     const login = async (username: string, password: string) => {
         console.log('[AuthContext] Attempting login...');
         const data = await authService.login(username, password);
@@ -106,9 +97,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('[AuthContext] State updated after login.');
     };
     
+    // <--- שינוי כאן: הפונקציה logout היא כעת async וקוראת ל-authService.logout()
     const logout = async () => {
         console.log('[AuthContext] Logging out...');
-        await authService.logout();
+        try {
+            await authService.logout(); // <--- קריאה לשירות ה-authService כדי להודיע לשרת
+            console.log('[AuthContext] authService.logout() completed.');
+        } catch (error) {
+            console.error('[AuthContext] Error during authService.logout:', error);
+            // אפשר להתעלם משגיאות ב-logout עצמו אם המטרה היא רק לנקות צד לקוח
+        }
+        
+        await AsyncStorage.removeItem('accessToken');
+        await AsyncStorage.removeItem('refreshToken');
+        await AsyncStorage.removeItem('userInfo');
         
         setAuthState({
             accessToken: null,
@@ -118,6 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             isLoading: false,
         });
         console.log('[AuthContext] State cleared after logout.');
+        // router.replace('/(auth)/login'); // <--- אפשר להוסיף ניתוב לדף ההתחברות כאן, אך עדיף ב-_layout.tsx
     };
 
     const updateUserInfo = async (newInfo: Partial<UserInfo>) => {
@@ -142,7 +145,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout,
         updateUserInfo,
         registerAndAssignTeam: authService.registerAndAssignTeam,
-        
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

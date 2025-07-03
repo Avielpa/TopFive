@@ -97,7 +97,6 @@ export default function DashboardScreen() {
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
-      {/* כפתור logout בצד ימין למעלה */}
       {userInfo && (
         <TouchableOpacity onPress={confirmLogout} style={styles.logoutButton}>
           <FontAwesome name="sign-out" size={16} color="#FFF" style={{ marginRight: 6 }} />
@@ -112,6 +111,7 @@ export default function DashboardScreen() {
           <View style={styles.teamCard}>
             <FontAwesome name="shield" size={28} color="#FFA726" />
             <Text style={styles.teamName}>{userInfo.team_name}</Text>
+            <Text style={styles.subText}>Budget: <Text style={styles.highlight}>{userInfo.budget}</Text></Text>
             <Text style={styles.subText}>League: <Text style={styles.highlight}>{userInfo.league_name}</Text></Text>
 
             <View style={styles.ratingCircle}>
@@ -165,7 +165,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
-    padding: 40,
+    padding: 30,
+    bottom:10,
   },
   leftPanel: {
     flex: 1,
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
     right: 40,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EF4444',
+    backgroundColor: '#FBBF24',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
@@ -302,3 +303,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+
+

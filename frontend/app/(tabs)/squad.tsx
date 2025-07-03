@@ -8,7 +8,8 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, SafeAreaView, Touc
 import { FullPlayer } from '../../types/entities';
 import { getSquad } from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 type SortKey = keyof FullPlayer;
 type SortDirection = 'asc' | 'desc';
@@ -105,6 +106,13 @@ const SquadScreen = () => {
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Team Squad</Text>
+
+            {/* כפתור "Manage line-up" ממוקם כאן */}
+            <TouchableOpacity onPress={() => { router.push('/manageLineup') }} style={styles.manageLineupButton}>
+                <FontAwesome name="edit" size={16} color="#1E293B" style={{ marginRight: 6 }} />
+                <Text style={styles.manageLineupButtonText}>Manage Line-up</Text>
+            </TouchableOpacity>
+
             <View style={styles.tableContainer}>
                 {renderHeader()}
                 <FlatList
@@ -142,7 +150,30 @@ const styles = StyleSheet.create({
     playerRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: '#334155', backgroundColor: '#1E293B' },
     cell: { color: '#CBD5E1', textAlign: 'center', flex: 1, fontSize: 14 },
     ratingCell: { fontWeight: 'bold', color: '#FFA726' },
+
+    // עיצוב חדש עבור כפתור "Manage Line-up"
+    manageLineupButton: {
+        position: 'absolute', // כדי למקם אותו בחופשיות
+        top: 25, // קצת מרווח מלמעלה
+        left: 10, // קצת מרווח מצד שמאל
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFA726', // צבע הכתום הקיים במערכת
+        paddingVertical: 8, // מרווח פנימי אנכי
+        paddingHorizontal: 15, // מרווח פנימי אופקי
+        borderRadius: 8, // פינות מעוגלות
+        zIndex: 10, // וודא שהוא מעל אלמנטים אחרים
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    manageLineupButtonText: {
+        color: '#1E293B', // צבע טקסט כהה שיתאים לכתום
+        fontWeight: 'bold',
+        fontSize: 14,
+    },
 });
 
 export default SquadScreen;
-
