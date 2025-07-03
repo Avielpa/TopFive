@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ImageBackground, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { getMatches } from '@/services/apiService';
@@ -66,6 +66,17 @@ export default function DashboardScreen() {
     }
   }, [userInfo, isLoading]);
 
+  const confirmLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Logout', style: 'destructive', onPress: logout }
+      ]
+    );
+  };
+
   if (isLoading) {
     return (
       <View style={styles.centered}>
@@ -86,9 +97,15 @@ export default function DashboardScreen() {
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
-      <View style={styles.container}>
+      {/* כפתור logout בצד ימין למעלה */}
+      {userInfo && (
+        <TouchableOpacity onPress={confirmLogout} style={styles.logoutButton}>
+          <FontAwesome name="sign-out" size={16} color="#FFF" style={{ marginRight: 6 }} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      )}
 
-        {/* שמאל: מידע על הקבוצה */}
+      <View style={styles.container}>
         <View style={styles.leftPanel}>
           <Text style={styles.header}>Welcome, Coach {userInfo.username}!</Text>
 
@@ -102,40 +119,38 @@ export default function DashboardScreen() {
             </View>
           </View>
         </View>
-          <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: `/match/[id]`,
-                  params: { id: String(nextMatch?.id), match: JSON.stringify(nextMatch) },
-                })
-              }
-          >
 
-            <View style={styles.rightPanel}>
-                <Text style={styles.sectionTitle}>Next Game</Text>
-                {nextMatch ? (
-                    <View style={styles.matchCard}>
-                    <Text style={styles.matchTeams}>
-                        {nextMatch.home_team_name} vs {nextMatch.away_team_name}
-                    </Text>
-                    <Text style={styles.matchDate}>
-                        {new Date(nextMatch.match_date).toLocaleDateString('he-IL', {
-                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                        })}
-                    </Text>
-                    <Text style={styles.matchTime}>
-                        {new Date(nextMatch.match_date).toLocaleTimeString('he-IL', {
-                        hour: '2-digit', minute: '2-digit', hour12: false
-                        })}
-                    </Text>
-                    </View>
-                ) : (
-                    <Text style={styles.noMatchText}>No upcoming matches found.</Text>
-                )}
-            </View>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: `/match/[id]`,
+              params: { id: String(nextMatch?.id), match: JSON.stringify(nextMatch) },
+            })
+          }
+        >
+          <View style={styles.rightPanel}>
+            <Text style={styles.sectionTitle}>Next Game</Text>
+            {nextMatch ? (
+              <View style={styles.matchCard}>
+                <Text style={styles.matchTeams}>
+                  {nextMatch.home_team_name} vs {nextMatch.away_team_name}
+                </Text>
+                <Text style={styles.matchDate}>
+                  {new Date(nextMatch.match_date).toLocaleDateString('he-IL', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                  })}
+                </Text>
+                <Text style={styles.matchTime}>
+                  {new Date(nextMatch.match_date).toLocaleTimeString('he-IL', {
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                  })}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.noMatchText}>No upcoming matches found.</Text>
+            )}
+          </View>
         </TouchableOpacity>
-
-
       </View>
     </ImageBackground>
   );
@@ -263,5 +278,27 @@ const styles = StyleSheet.create({
   noMatchText: {
     fontSize: 18,
     color: '#94A3B8',
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EF4444',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    zIndex: 999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  logoutText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });

@@ -13,4 +13,5 @@ urlpatterns = [
     path('players/transfer-market/', TransferMarketListView.as_view(), name='transfer-market-list'),
     path('players/<int:player_id>/buy/', BuyPlayerView.as_view(), name='buy-player'),
     path('team/squad/', SquadView.as_view(), name='team-squad'),
+    path('team/matches/<int:team_id>/', MatchListByLeague.as_view(), name='team-matches'),
 ]
