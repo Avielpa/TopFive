@@ -32,6 +32,13 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="manageLineup" // This will render the manageLineup.tsx file
+          options={{
+            title: 'Coaching',
+            tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="strategy" size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
           name="leagueTable" // This will render the league.tsx file
           options={{
             title: 'League',
@@ -54,13 +61,6 @@ export default function TabsLayout() {
         />
         <Tabs.Screen
           name="match/[id]"
-          options={{
-            href: null,
-            headerShown: false, 
-          }}
-        />
-        <Tabs.Screen
-          name="manageLineup"
           options={{
             href: null,
             headerShown: false, 

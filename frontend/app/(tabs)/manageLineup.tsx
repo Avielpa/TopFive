@@ -1,110 +1,41 @@
 // In frontend/app/(tabs)/manageLineup.tsx
 
-import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, ImageBackground, DimensionValue, ActivityIndicator } from 'react-native';
+import { Stack } from 'expo-router';
 import Slider from '@react-native-community/slider';
 import { Feather } from '@expo/vector-icons';
+import { useTeamTactics, PlayerType, TacticsType } from '../hooks/useTeamTactics'; // ייבוא ה-Hook והטיפוסים
 
-// --- הגדרת טיפוסים (Types) ---
-type OffensiveRole = 'PRIMARY' | 'SECONDARY' | 'ROLE' | 'DND';
-type PlayerRole = 'STARTER' | 'BENCH' | 'RESERVE';
-type KeyRole = 'goToGuy' | 'defensiveStopper';
-
-type PlayerType = {
-    id: number;
-    name: string;
-    pos: string;
-    rating: number;
-    role: PlayerRole;
-    minutes: number;
-    offensive_role: OffensiveRole;
-};
-
-// --- נתונים מדומים (Mock Data) ---
-const MOCK_PLAYERS: PlayerType[] = [
-    { id: 1, name: 'S. Cohen', pos: 'PG', rating: 95, role: 'STARTER', minutes: 34, offensive_role: 'PRIMARY' },
-    { id: 2, name: 'K. Levi', pos: 'SG', rating: 94, role: 'STARTER', minutes: 32, offensive_role: 'SECONDARY' },
-    { id: 3, name: 'L. Davidson', pos: 'SF', rating: 96, role: 'STARTER', minutes: 25, offensive_role: 'PRIMARY' },
-    { id: 4, name: 'G. Mizrahi', pos: 'PF', rating: 97, role: 'STARTER', minutes: 26, offensive_role: 'SECONDARY' },
-    { id: 5, name: 'N. Avraham', pos: 'C', rating: 98, role: 'STARTER', minutes: 28, offensive_role: 'ROLE' },
-    { id: 6, name: 'G. Levy', pos: 'PG', rating: 78, role: 'BENCH', minutes: 14, offensive_role: 'ROLE' },
-    { id: 7, name: 'D. Peretz', pos: 'SG', rating: 80, role: 'BENCH', minutes: 16, offensive_role: 'SECONDARY' },
-    { id: 8, name: 'A. Friedman', pos: 'SF', rating: 75, role: 'BENCH', minutes: 13, offensive_role: 'DND' },
-    { id: 9, name: 'O. Katz', pos: 'PF', rating: 76, role: 'BENCH', minutes: 12, offensive_role: 'ROLE' },
-    { id: 10, name: 'Y. Atias', pos: 'C', rating: 79, role: 'BENCH', minutes: 10, offensive_role: 'ROLE' },
-    { id: 11, name: 'B. Dahan', pos: 'SG', rating: 72, role: 'RESERVE', minutes: 0, offensive_role: 'DND' },
-    { id: 12, name: 'T. Ohana', pos: 'C', rating: 71, role: 'RESERVE', minutes: 0, offensive_role: 'DND' },
-];
-
-const OFFENSIVE_ROLES: { key: OffensiveRole, label: string }[] = [
-    { key: 'PRIMARY', label: '1st Opt' }, { key: 'SECONDARY', label: '2nd Opt' },
+// --- הגדרות קבועות ---
+const OFFENSIVE_ROLES_CONFIG: { key: PlayerType['offensive_role'], label: string }[] = [
+    { key: 'PRIMARY', label: '1st' }, { key: 'SECONDARY', label: '2nd' },
     { key: 'ROLE', label: 'Role' }, { key: 'DND', label: 'DND' }
 ];
 
-const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C'];
+type KeyRole = 'goToGuy' | 'defensiveStopper';
 
-// --- הגדרת טיפוסי Props עבור קומפוננטות העזר ---
-type RotationPlayerProps = {
+
+const RotationPlayer = ({ player, onMinutesChange, onRoleChange, onInitiateSwap, maxMinutes }: {
     player: PlayerType;
     onMinutesChange: (playerId: number, minutes: number) => void;
-    onRoleChange: (playerId: number, role: OffensiveRole) => void;
-    onInitiateSwap: (player: PlayerType) => void; // Prop חדש לפתיחת מודל ההחלפה
+    onRoleChange: (playerId: number, role: PlayerType['offensive_role']) => void;
+    onInitiateSwap: (player: PlayerType) => void;
     maxMinutes: number;
-};
-
-type TacticalSliderProps = {
-    label: string;
-    value: number;
-    onValueChange: (value: number) => void;
-};
-
-type KeyPlayerSelectorProps = {
-    label: string;
-    players: PlayerType[];
-    selectedId: number | null;
-    onSelect: () => void;
-};
-
-type PositionalStrengthChartProps = {
-    players: PlayerType[];
-};
-
-
-// --- קומפוננטות עזר עם טיפוסים מוגדרים ---
-const RotationPlayer = ({ player, onMinutesChange, onRoleChange, onInitiateSwap, maxMinutes }: RotationPlayerProps) => {
+}) => {
     const [displayMinutes, setDisplayMinutes] = useState(player.minutes);
 
     return (
         <View style={styles.playerCard}>
-            <View style={styles.playerInfo}>
-                <View>
-                    <Text style={styles.playerName}>{player.name}</Text>
-                    <Text style={styles.playerDetails}>{player.pos} | Rating: {player.rating}</Text>
-                </View>
-                {/* כפתור החלפה חדש */}
-                <TouchableOpacity onPress={() => onInitiateSwap(player)} style={styles.swapButton}>
-                    <Feather name="repeat" size={18} color="#94A3B8" />
-                </TouchableOpacity>
-            </View>
-            <View style={styles.playerControls}>
-                <View style={styles.sliderContainer}>
-                    <Slider
-                        style={{ flex: 1, height: 40 }}
-                        minimumValue={0}
-                        maximumValue={Math.min(40, maxMinutes)}
-                        step={1}
-                        value={player.minutes}
-                        onValueChange={setDisplayMinutes}
-                        onSlidingComplete={(value) => onMinutesChange(player.id, value)}
-                        minimumTrackTintColor="#FFA726"
-                        maximumTrackTintColor="#334155"
-                        thumbTintColor="#FFA726"
-                    />
-                    <Text style={styles.minutesText}>{Math.round(displayMinutes)}</Text>
+            <View style={styles.playerTopRow}>
+                <View style={styles.playerInfo}>
+                    <Text style={styles.playerName} numberOfLines={1} ellipsizeMode='tail'>
+                        {player.name}
+                        <Text style={styles.playerDetails}>  {player.pos} | {player.rating}</Text>
+                    </Text>
                 </View>
                 <View style={styles.offensiveRoleSelector}>
-                    {OFFENSIVE_ROLES.map(role => (
+                    {OFFENSIVE_ROLES_CONFIG.map(role => (
                         <TouchableOpacity key={role.key}
                             style={[styles.roleButton, player.offensive_role === role.key && styles.roleButtonActive]}
                             onPress={() => onRoleChange(player.id, role.key)}>
@@ -112,12 +43,54 @@ const RotationPlayer = ({ player, onMinutesChange, onRoleChange, onInitiateSwap,
                         </TouchableOpacity>
                     ))}
                 </View>
+                <TouchableOpacity onPress={() => onInitiateSwap(player)} style={styles.swapButton}>
+                    <Feather name="repeat" size={15} color="#94A3B8" />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.sliderContainer}>
+                <Slider
+                    style={{ flex: 1, height: 20 }}
+                    minimumValue={0}
+                    maximumValue={Math.min(40, maxMinutes)}
+                    step={1}
+                    value={player.minutes}
+                    onValueChange={setDisplayMinutes}
+                    onSlidingComplete={(value) => onMinutesChange(player.id, value)}
+                    minimumTrackTintColor="#FFA726"
+                    maximumTrackTintColor="#334155"
+                    thumbTintColor="#FFA726"
+                />
+                <Text style={styles.minutesText}>{Math.round(displayMinutes)}</Text>
             </View>
         </View>
     );
 };
 
-const TacticalSlider = ({ label, value, onValueChange }: TacticalSliderProps) => (
+const CourtView = ({ starters, teamColor }: { starters: PlayerType[], teamColor: string }) => {
+    const PLAYER_POSITIONS: { [key: string]: { top: DimensionValue, left: DimensionValue } } = {
+        'PG': { top: '10%', left: '42%' }, 'SG': { top: '25%', left: '75%' },
+        'SF': { top: '25%', left: '10%' }, 'PF': { top: '60%', left: '65%' },
+        'C': { top: '60%', left: '20%' },
+    };
+    return (
+        <View style={styles.courtContainer}>
+            <ImageBackground source={require('../../assets/half_court.png')} style={styles.courtImage} resizeMode="contain">
+                {starters.map(player => {
+                    const positionStyle = PLAYER_POSITIONS[player.pos] || { top: '50%', left: '45%' };
+                    return (
+                        <View key={player.id} style={[styles.playerMarker, positionStyle]}>
+                            <View style={[styles.playerMarkerDot, { backgroundColor: teamColor }]} />
+                            <Text style={styles.playerMarkerText}>{player.name}</Text>
+                        </View>
+                    );
+                })}
+            </ImageBackground>
+        </View>
+    );
+};
+
+// ... (שאר קומפוננטות העזר נשארות כאן)
+const TacticalSlider = ({ label, value, onValueChange }: {label: string, value: number, onValueChange: (v: number) => void}) => (
     <View style={styles.tacticalSlider}>
         <Text style={styles.tacticalLabel}>{label}</Text>
         <Slider
@@ -130,7 +103,7 @@ const TacticalSlider = ({ label, value, onValueChange }: TacticalSliderProps) =>
     </View>
 );
 
-const KeyPlayerSelector = ({ label, players, selectedId, onSelect }: KeyPlayerSelectorProps) => (
+const KeyPlayerSelector = ({ label, players, selectedId, onSelect }: {label: string, players: PlayerType[], selectedId: number | null, onSelect: () => void}) => (
     <View style={styles.keyPlayerContainer}>
         <Text style={styles.tacticalLabel}>{label}</Text>
         <TouchableOpacity style={styles.keyPlayerSelector} onPress={onSelect}>
@@ -140,13 +113,12 @@ const KeyPlayerSelector = ({ label, players, selectedId, onSelect }: KeyPlayerSe
     </View>
 );
 
-const PositionalStrengthChart = ({ players }: PositionalStrengthChartProps) => {
+const PositionalStrengthChart = ({ players }: {players: PlayerType[]}) => {
     const chartData = useMemo(() => {
+        const POSITIONS = ['PG', 'SG', 'SF', 'PF', 'C'];
         return POSITIONS.map(pos => {
             const posPlayers = players.filter(p => p.pos === pos && p.minutes > 0);
-            if (posPlayers.length === 0) {
-                return { pos, rating: 0, totalMinutes: 0 };
-            }
+            if (posPlayers.length === 0) return { pos, rating: 0, totalMinutes: 0 };
             const totalMinutes = posPlayers.reduce((sum, p) => sum + p.minutes, 0);
             const weightedRating = posPlayers.reduce((sum, p) => sum + (p.rating * p.minutes), 0);
             return { pos, rating: Math.round(weightedRating / totalMinutes), totalMinutes };
@@ -169,41 +141,58 @@ const PositionalStrengthChart = ({ players }: PositionalStrengthChartProps) => {
     );
 };
 
-// --- קומפוננטה ראשית ---
+
+// --- הקומפוננטה הראשית (שכתוב מלא) ---
 export default function ManageLineupScreen() {
-    const router = useRouter();
-    const [players, setPlayers] = useState<PlayerType[]>(MOCK_PLAYERS);
+    // שימוש ב-Hook החדש לניהול כל המצב והלוגיקה
+    const {
+        players, tactics, teamColor, isLoading, error,
+        setPlayers, setTactics,
+        starters, bench, reserves, totalMinutes, remainingMinutes,
+        saveTactics,
+    } = useTeamTactics();
 
-    const [tactics, setTactics] = useState({
-        pace: 3,
-        offensiveFocus: 3,
-        defensiveAggressiveness: 3,
-        goToGuy: 3,
-        defensiveStopper: 4,
-    });
-
-    // State for Key Player Modal
+    // State מקומי עבור המודאלים בלבד
     const [keyPlayerModalVisible, setKeyPlayerModalVisible] = useState(false);
     const [editingRole, setEditingRole] = useState<KeyRole | null>(null);
-
-    // State for Swap Player Modal
     const [swapModalVisible, setSwapModalVisible] = useState(false);
     const [playerToSwap, setPlayerToSwap] = useState<PlayerType | null>(null);
 
-    const totalMinutes = useMemo(() => players.reduce((sum, p) => sum + p.minutes, 0), [players]);
-    // 48 min game * 5 positions = 240 total minutes to be distributed
-    const remainingMinutes = 240 - totalMinutes;
-
+    // --- פונקציות לניהול שינויים במצב (מעדכנות את המצב ב-Hook) ---
     const handleMinutesChange = useCallback((playerId: number, minutes: number) => {
         const roundedMinutes = Math.round(minutes);
         setPlayers(current => current.map(p => p.id === playerId ? { ...p, minutes: roundedMinutes } : p));
-    }, []);
+    }, [setPlayers]);
 
-    const handleOffensiveRoleChange = useCallback((playerId: number, offensive_role: OffensiveRole) => {
+    const handleOffensiveRoleChange = useCallback((playerId: number, offensive_role: PlayerType['offensive_role']) => {
         setPlayers(current => current.map(p => p.id === playerId ? { ...p, offensive_role } : p));
+    }, [setPlayers]);
+
+    const handleSwapPlayer = useCallback((targetPlayerId: number) => {
+        if (!playerToSwap) return;
+        setPlayers(currentPlayers => {
+            const newPlayers = [...currentPlayers];
+            const playerAIndex = newPlayers.findIndex(p => p.id === playerToSwap.id);
+            const playerBIndex = newPlayers.findIndex(p => p.id === targetPlayerId);
+
+            if (playerAIndex > -1 && playerBIndex > -1) {
+                const playerA = newPlayers[playerAIndex];
+                const playerB = newPlayers[playerBIndex];
+                // החלפת תפקיד ועמדה
+                [playerA.role, playerB.role] = [playerB.role, playerA.role];
+                [playerA.pos, playerB.pos] = [playerB.pos, playerA.pos];
+            }
+            return newPlayers;
+        });
+        setSwapModalVisible(false);
+        setPlayerToSwap(null);
+    }, [playerToSwap, setPlayers]);
+
+    const openSwapModal = useCallback((player: PlayerType) => {
+        setPlayerToSwap(player);
+        setSwapModalVisible(true);
     }, []);
 
-    // --- Key Player Logic ---
     const openKeyPlayerModal = (role: KeyRole) => {
         setEditingRole(role);
         setKeyPlayerModalVisible(true);
@@ -217,101 +206,57 @@ export default function ManageLineupScreen() {
         setEditingRole(null);
     };
 
-    // --- Swap Player Logic ---
-    const openSwapModal = useCallback((player: PlayerType) => {
-        setPlayerToSwap(player);
-        setSwapModalVisible(true);
-    }, []);
+    // --- תצוגת טעינה ושגיאה ---
+    if (isLoading && players.length === 0) {
+        return <View style={styles.centered}><ActivityIndicator size="large" color="#FFA726" /></View>;
+    }
 
-    const handleSwapPlayer = useCallback((targetPlayerId: number) => {
-        if (!playerToSwap) return;
+    if (error) {
+        return <View style={styles.centered}><Text style={styles.errorText}>{error}</Text></View>;
+    }
 
-        setPlayers(currentPlayers => {
-            const newPlayers = currentPlayers.map(p => {
-                // The player initiating the swap gets the target's role
-                if (p.id === playerToSwap.id) {
-                    const targetPlayer = currentPlayers.find(tp => tp.id === targetPlayerId);
-                    return { ...p, role: targetPlayer?.role || p.role };
-                }
-                // The target player gets the initiator's role
-                if (p.id === targetPlayerId) {
-                    return { ...p, role: playerToSwap.role };
-                }
-                return p;
-            });
-            return newPlayers;
-        });
-
-        setSwapModalVisible(false);
-        setPlayerToSwap(null);
-    }, [playerToSwap]);
-
-
-    const handleSaveChanges = () => { /* ... */ };
-
-    const starters = useMemo(() => players.filter(p => p.role === 'STARTER').sort((a, b) => POSITIONS.indexOf(a.pos) - POSITIONS.indexOf(b.pos)), [players]);
-    const bench = useMemo(() => players.filter(p => p.role === 'BENCH').sort((a, b) => b.rating - a.rating), [players]);
-    const reserves = useMemo(() => players.filter(p => p.role === 'RESERVE').sort((a, b) => b.rating - a.rating), [players]);
-
-    // Players available for swapping in the modal
     const swappablePlayers = playerToSwap?.role === 'STARTER' ? [...bench, ...reserves] : starters;
 
     return (
         <View style={styles.screen}>
-            <Stack.Screen options={{ headerShown: true, title: 'Tactics & Rotation', headerStyle: { backgroundColor: '#1E293B' }, headerTintColor: '#FFFFFF', headerTitleStyle: { fontWeight: 'bold' }, headerRight: () => (<TouchableOpacity onPress={handleSaveChanges} style={styles.headerButton}><Text style={styles.headerButtonText}>Save</Text></TouchableOpacity>) }} />
-
-            {/* Modal for selecting Go-To Guy / Defensive Stopper */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={keyPlayerModalVisible}
-                onRequestClose={() => setKeyPlayerModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Select {editingRole === 'goToGuy' ? 'Go-To Guy' : 'Defensive Stopper'}</Text>
-                        <ScrollView>
-                            {players.map(p => (
-                                <TouchableOpacity key={p.id} style={styles.modalPlayerRow} onPress={() => handleSelectKeyPlayer(p.id)}>
-                                    <Text style={styles.modalPlayerName}>{p.name}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-                        <TouchableOpacity style={styles.modalCloseButton} onPress={() => setKeyPlayerModalVisible(false)}>
-                            <Text style={styles.modalCloseButtonText}>Cancel</Text>
+            <Stack.Screen 
+                options={{ 
+                    headerShown: true, title: 'Tactics & Rotation', 
+                    headerStyle: { backgroundColor: '#1E293B' }, headerTintColor: '#FFFFFF', 
+                    headerTitleStyle: { fontWeight: 'bold', fontSize: 18 }, 
+                    headerRight: () => (
+                        <TouchableOpacity onPress={saveTactics} style={styles.headerButton} disabled={isLoading}>
+                            {isLoading ? <ActivityIndicator color="#1E293B" /> : <Text style={styles.headerButtonText}>Save</Text>}
                         </TouchableOpacity>
-                    </View>
-                </View>
+                    ) 
+                }} 
+            />
+            
+            {/* Modals */}
+            <Modal animationType="slide" transparent={true} visible={keyPlayerModalVisible} onRequestClose={() => setKeyPlayerModalVisible(false)}>
+                <View style={styles.modalOverlay}><View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>Select {editingRole === 'goToGuy' ? 'Go-To Guy' : 'Defensive Stopper'}</Text>
+                    <ScrollView>{players.map(p => (<TouchableOpacity key={p.id} style={styles.modalPlayerRow} onPress={() => handleSelectKeyPlayer(p.id)}><Text style={styles.modalPlayerName}>{p.name}</Text></TouchableOpacity>))}</ScrollView>
+                    <TouchableOpacity style={styles.modalCloseButton} onPress={() => setKeyPlayerModalVisible(false)}><Text style={styles.modalCloseButtonText}>Cancel</Text></TouchableOpacity>
+                </View></View>
+            </Modal>
+            <Modal animationType="slide" transparent={true} visible={swapModalVisible} onRequestClose={() => setSwapModalVisible(false)}>
+                 <View style={styles.modalOverlay}><View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>Swap {playerToSwap?.name} with...</Text>
+                    <ScrollView>{swappablePlayers.map(p => (<TouchableOpacity key={p.id} style={styles.modalPlayerRow} onPress={() => handleSwapPlayer(p.id)}><Text style={styles.modalPlayerName}>{p.name} ({p.pos} | {p.rating})</Text></TouchableOpacity>))}</ScrollView>
+                    <TouchableOpacity style={styles.modalCloseButton} onPress={() => setSwapModalVisible(false)}><Text style={styles.modalCloseButtonText}>Cancel</Text></TouchableOpacity>
+                </View></View>
             </Modal>
 
-            {/* Modal for swapping players */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={swapModalVisible}
-                onRequestClose={() => setSwapModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Swap {playerToSwap?.name} with...</Text>
-                        <ScrollView>
-                            {swappablePlayers.map(p => (
-                                <TouchableOpacity key={p.id} style={styles.modalPlayerRow} onPress={() => handleSwapPlayer(p.id)}>
-                                    <Text style={styles.modalPlayerName}>{p.name} ({p.pos} | {p.rating})</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-                        <TouchableOpacity style={styles.modalCloseButton} onPress={() => setSwapModalVisible(false)}>
-                            <Text style={styles.modalCloseButtonText}>Cancel</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-
+            {/* Main Layout */}
             <View style={styles.mainContainer}>
                 <View style={styles.leftColumn}>
                     <Text style={styles.columnHeader}>Tactical Center</Text>
                     <ScrollView>
+                        <View style={styles.tacticsCard}>
+                            <Text style={styles.sectionHeader}>Starting Lineup</Text>
+                            <CourtView starters={starters} teamColor={teamColor} />
+                        </View>
                         <View style={styles.tacticsCard}>
                             <Text style={styles.sectionHeader}>Team DNA</Text>
                             <TacticalSlider label="Pace" value={tactics.pace} onValueChange={v => setTactics(t => ({ ...t, pace: v }))} />
@@ -332,54 +277,25 @@ export default function ManageLineupScreen() {
 
                 <View style={styles.rightColumn}>
                     <View style={styles.summaryBar}>
-                        <Text style={styles.summaryText}>Total Minutes:</Text>
-                        <Text style={[styles.summaryText, { color: totalMinutes === 240 ? '#4ADE80' : '#F87171' }]}>{totalMinutes} / 240</Text>
+                        <Text style={styles.columnHeaderRight}>Rotation & Minutes</Text>
+                        <View style={styles.minutesTracker}>
+                            <Text style={styles.summaryText}>Total:</Text>
+                            <Text style={[styles.summaryText, { color: totalMinutes === 240 ? '#4ADE80' : '#F87171' }]}>{totalMinutes} / 240</Text>
+                        </View>
                     </View>
                     <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-                        {/* --- STARTERS SECTION --- */}
                         <View style={styles.rotationSection}>
                             <Text style={styles.positionHeader}>STARTERS ({starters.length})</Text>
-                            {starters.map(player =>
-                                <RotationPlayer
-                                    key={player.id}
-                                    player={player}
-                                    onMinutesChange={handleMinutesChange}
-                                    onRoleChange={handleOffensiveRoleChange}
-                                    onInitiateSwap={openSwapModal}
-                                    maxMinutes={player.minutes + remainingMinutes}
-                                />
-                            )}
+                            {starters.map(player => <RotationPlayer key={player.id} player={player} onMinutesChange={handleMinutesChange} onRoleChange={handleOffensiveRoleChange} onInitiateSwap={openSwapModal} maxMinutes={player.minutes + remainingMinutes} /> )}
                         </View>
-
-                        {/* --- BENCH SECTION --- */}
                         <View style={styles.rotationSection}>
                             <Text style={styles.positionHeader}>BENCH ({bench.length})</Text>
-                            {bench.map(player =>
-                                <RotationPlayer
-                                    key={player.id}
-                                    player={player}
-                                    onMinutesChange={handleMinutesChange}
-                                    onRoleChange={handleOffensiveRoleChange}
-                                    onInitiateSwap={openSwapModal}
-                                    maxMinutes={player.minutes + remainingMinutes}
-                                />
-                            )}
+                            {bench.map(player => <RotationPlayer key={player.id} player={player} onMinutesChange={handleMinutesChange} onRoleChange={handleOffensiveRoleChange} onInitiateSwap={openSwapModal} maxMinutes={player.minutes + remainingMinutes} /> )}
                         </View>
-
-                        {/* --- RESERVES SECTION --- */}
                         {reserves.length > 0 && (
                             <View style={styles.rotationSection}>
                                 <Text style={styles.positionHeader}>RESERVES ({reserves.length})</Text>
-                                {reserves.map(player =>
-                                    <RotationPlayer
-                                        key={player.id}
-                                        player={player}
-                                        onMinutesChange={handleMinutesChange}
-                                        onRoleChange={handleOffensiveRoleChange}
-                                        onInitiateSwap={openSwapModal}
-                                        maxMinutes={player.minutes + remainingMinutes}
-                                    />
-                                )}
+                                {reserves.map(player => <RotationPlayer key={player.id} player={player} onMinutesChange={handleMinutesChange} onRoleChange={handleOffensiveRoleChange} onInitiateSwap={openSwapModal} maxMinutes={player.minutes + remainingMinutes} /> )}
                             </View>
                         )}
                     </ScrollView>
@@ -389,14 +305,19 @@ export default function ManageLineupScreen() {
     );
 }
 
+// --- סגנונות (Styles) ---
+// הסגנונות נשארים זהים, בתוספת סגנון למצב טעינה ושגיאה
 const styles = StyleSheet.create({
+    centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F172A' },
+    errorText: { color: '#F87171', fontSize: 16, textAlign: 'center' },
     screen: { flex: 1, backgroundColor: '#0F172A', flexDirection: 'row' },
     mainContainer: { flex: 1, flexDirection: 'row' },
     leftColumn: { width: '40%', backgroundColor: '#1E293B', padding: 10, borderRightWidth: 2, borderRightColor: '#334155' },
     rightColumn: { width: '60%' },
-    columnHeader: { fontSize: 20, fontWeight: 'bold', color: '#FFA726', textAlign: 'center', marginBottom: 15 },
-    tacticsCard: { padding: 15, backgroundColor: '#334155', borderRadius: 8, marginBottom: 15 },
-    sectionHeader: { fontSize: 16, fontWeight: 'bold', color: '#F1F5F9', marginBottom: 10 },
+    columnHeader: { fontSize: 16, fontWeight: 'bold', color: '#FFA726', textAlign: 'center', marginBottom: 10 },
+    columnHeaderRight: { fontSize: 16, fontWeight: 'bold', color: '#FFA726' },
+    tacticsCard: { padding: 12, backgroundColor: '#334155', borderRadius: 8, marginBottom: 12 },
+    sectionHeader: { fontSize: 15, fontWeight: 'bold', color: '#F1F5F9', marginBottom: 10 },
     tacticalSlider: { marginBottom: 5 },
     tacticalLabel: { color: '#CBD5E1', fontSize: 14 },
     tacticalValue: { color: '#FFA726', fontSize: 14, fontWeight: 'bold', position: 'absolute', right: 0, top: 10 },
@@ -408,22 +329,23 @@ const styles = StyleSheet.create({
     bar: { width: '50%', backgroundColor: '#FFA726', borderRadius: 4, justifyContent: 'flex-start', alignItems: 'center', paddingTop: 4 },
     barLabel: { color: '#94A3B8', fontSize: 12, marginTop: 4 },
     barMinutesText: { color: '#1E293B', fontSize: 10, fontWeight: 'bold' },
-    summaryBar: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#1E293B' },
-    summaryText: { color: '#CBD5E1', fontSize: 16, fontWeight: 'bold' },
-    rotationSection: { paddingHorizontal: 15, paddingTop: 15 },
-    positionHeader: { color: '#FFA726', fontSize: 16, fontWeight: 'bold', marginBottom: 10, textTransform: 'uppercase' },
-    playerCard: { backgroundColor: '#1E293B', borderRadius: 8, padding: 15, marginBottom: 12 },
-    playerInfo: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-    playerName: { color: '#F1F5F9', fontSize: 18, fontWeight: 'bold' },
-    playerDetails: { color: '#94A3B8', fontSize: 14 },
-    swapButton: { padding: 5 }, // Style for the new swap button
-    playerControls: { marginTop: 5 },
-    sliderContainer: { flexDirection: 'row', alignItems: 'center', gap: 15 },
-    minutesText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold', width: 30, textAlign: 'right' },
-    offensiveRoleSelector: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 15 },
-    roleButton: { borderWidth: 1, borderColor: '#334155', borderRadius: 20, paddingVertical: 4, paddingHorizontal: 8 },
+    summaryBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 10, backgroundColor: '#1E293B' },
+    minutesTracker: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    summaryText: { color: '#CBD5E1', fontSize: 13, fontWeight: 'bold' },
+    rotationSection: { paddingHorizontal: 10, paddingTop: 10 },
+    positionHeader: { color: '#FFA726', fontSize: 14, fontWeight: 'bold', marginBottom: 6, textTransform: 'uppercase' },
+    playerCard: { backgroundColor: '#1E293B', borderRadius: 6, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5 },
+    playerTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 },
+    playerInfo: { flex: 1, marginRight: 4 },
+    playerName: { color: '#F1F5F9', fontSize: 14, fontWeight: 'bold' },
+    playerDetails: { color: '#94A3B8', fontSize: 11, fontWeight: 'normal' },
+    swapButton: { paddingLeft: 4 },
+    sliderContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    minutesText: { color: '#FFFFFF', fontSize: 13, fontWeight: 'bold', width: 24, textAlign: 'right' },
+    offensiveRoleSelector: { flexDirection: 'row', alignItems: 'center' },
+    roleButton: { borderWidth: 1, borderColor: '#334155', borderRadius: 10, paddingVertical: 2, paddingHorizontal: 5, marginHorizontal: 1.5 },
     roleButtonActive: { backgroundColor: '#FFA726', borderColor: '#FFA726' },
-    roleButtonText: { color: '#94A3B8', fontSize: 12 },
+    roleButtonText: { color: '#94A3B8', fontSize: 10 },
     roleButtonTextActive: { color: '#1E293B', fontWeight: 'bold' },
     headerButton: { flexDirection: 'row', alignItems: 'center', marginRight: 15, backgroundColor: '#FFA726', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
     headerButtonText: { color: '#1E293B', fontWeight: 'bold', fontSize: 14 },
@@ -434,4 +356,9 @@ const styles = StyleSheet.create({
     modalPlayerName: { color: '#FFFFFF', fontSize: 16, textAlign: 'center' },
     modalCloseButton: { marginTop: 20, backgroundColor: '#334155', padding: 12, borderRadius: 8 },
     modalCloseButtonText: { color: '#FFFFFF', textAlign: 'center', fontWeight: 'bold' },
+    courtContainer: { height: 250, marginTop: 10, marginBottom: 10, backgroundColor: '#0F172A', borderRadius: 8, overflow: 'hidden' },
+    courtImage: { flex: 1, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
+    playerMarker: { position: 'absolute', flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.7)', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 12 },
+    playerMarkerDot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
+    playerMarkerText: { color: '#F1F5F9', fontSize: 12, fontWeight: 'bold' },
 });

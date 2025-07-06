@@ -35,11 +35,17 @@ class Team(models.Model):
     away_jersey_color = models.CharField(max_length=50, verbose_name="Away Jersey Color")
     titles = models.PositiveIntegerField(default=0, verbose_name="Championships")
     budget = models.PositiveIntegerField(default=1000000, verbose_name="Budget (in $)")
+    
     # Team tactics
-    # 1. זהות קבוצתית (Team DNA)
     pace = models.PositiveIntegerField(default=3, verbose_name="Pace (1-5)")
+    
+    # [DEPRECATED] This field is no longer used by the new tactics screen.
     OFFENSIVE_FOCUS_CHOICES = [('INSIDE', 'Inside Focus'), ('OUTSIDE', 'Outside Focus')]
     offensive_focus = models.CharField(max_length=10, choices=OFFENSIVE_FOCUS_CHOICES, default='OUTSIDE')
+    
+    # [NEW] This field will store the value from the 'Off. Focus' slider.
+    offensive_focus_slider = models.PositiveIntegerField(default=3, verbose_name="Offensive Focus Slider (1-5)")
+    
     defensive_aggressiveness = models.PositiveIntegerField(default=3, verbose_name="Aggressiveness (1-5)")
 
     go_to_guy = models.ForeignKey(
@@ -190,7 +196,7 @@ class Player(models.Model):
 
     role = models.CharField(
         max_length=10, 
-        choices=[('STARTER', 'Starter'), ('BENCH', 'Bench'), ('RESERVE', 'Reserve')], 
+        choices=ROLE_CHOICES, 
         default='RESERVE',
         verbose_name="Player Role"
     )
@@ -273,6 +279,3 @@ class Match(models.Model):
     
     def __str__(self):
         return f"{self.home_team} vs {self.away_team} (Round {self.match_round})"
-    
-    
-

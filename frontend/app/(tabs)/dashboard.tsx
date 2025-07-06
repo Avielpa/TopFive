@@ -309,8 +309,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ImageBackground, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { getMatches } from '@/services/apiService';
-import { Match } from '@/types/entities';
+import { getMatches } from '../../services/apiService';
+import { Match } from '../../types/entities';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -431,7 +431,7 @@ export default function DashboardScreen() {
                 
                 <View style={styles.detailRow}>
                   <FontAwesome name="money" size={16} color="#CBD5E1" />
-                  <Text style={styles.detailText}>Budget: <Text style={styles.highlight}>{userInfo.budget.toLocaleString()}$</Text></Text>
+                  <Text style={styles.detailText}>Budget: <Text style={styles.highlight}>{userInfo.budget?.toLocaleString()}$</Text></Text>
                 </View>
                 
                 <View style={styles.detailRow}>
