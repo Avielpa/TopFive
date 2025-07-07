@@ -111,7 +111,17 @@ export const getMatches = async (leagueID: number): Promise<Match[] | undefined>
     }
 };
 
-// Add any other API calls related to game logic here...
-// For example:
-// export const updateTeamTactics = async (tacticsData: any) => { ... };
-// export const trainPlayer = async (playerId: number, trainingType: string) => { ... };
+export const listPlayerForTransfer = async (playerId: number, price: number): Promise<{ player: FullPlayer }> => {
+    const response = await api.post(`/players/${playerId}/list-transfer/`, { price });
+    return response.data;
+};
+
+export const unlistPlayerFromTransfer = async (playerId: number): Promise<{ player: FullPlayer }> => {
+    const response = await api.post(`/players/${playerId}/unlist-transfer/`);
+    return response.data;
+};
+
+export const releasePlayer = async (playerId: number): Promise<{ released_player_id: number }> => {
+    const response = await api.post(`/players/${playerId}/release/`);
+    return response.data;
+};

@@ -41,7 +41,7 @@ class FullPlayerSerializer(serializers.ModelSerializer):
             'shooting_2p', 'shooting_3p', 'free_throws', 'rebound_def',
             'rebound_off', 'passing', 'blocking', 'defense', 'game_iq',
             'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured',
-            'role', 'offensive_role', 'assigned_minutes', 
+            'role', 'offensive_role', 'assigned_minutes', 'is_on_transfer_list', 'asking_price',
         ]
 
 # --- [NEW] Serializers for Tactics & Rotation Screen ---
