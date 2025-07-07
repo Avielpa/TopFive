@@ -220,76 +220,67 @@ export default function TabsLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* הוסרו AuthProvider ו-SettingsProvider - הם נמצאים ב-Root Layout */}
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
-        {/* HUD Top Bar */}
-        {userInfo && (
-          <View style={[styles.hudContainer, { backgroundColor: colors.background, borderBottomColor: '#334155' }]}>
-            <View style={styles.hudItem}>
-              <Feather name="dollar-sign" size={ICON_SIZE} color={colors.icon} />
-              <Text style={[styles.hudText, { color: colors.text }]}>
-                {userInfo.budget?.toLocaleString()}$
-              </Text>
-            </View>
-            <View style={styles.hudItem}>
-              <Feather name="zap" size={ICON_SIZE} color="#60A5FA" />
-              <Text style={[styles.hudText, { color: colors.text }]}>
-                {t.ovr}: {userInfo.overall_rating || '--'}
-              </Text>
-            </View>
-            <View style={styles.hudItem}>
-              <Feather name="award" size={ICON_SIZE} color="#FACC15" />
-              <Text style={[styles.hudText, { color: colors.text }]}>
-                {t.rank}: {currentLeagueRank}
-              </Text>
-            </View>
-            <View style={styles.hudItem}>
-              <Feather name="calendar" size={ICON_SIZE} color="#A78BFA" />
-              <Text style={[styles.hudText, { color: colors.text }]}>
-                {currentSeasonGameDay}
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.hudItem} onPress={() => router.push('/notifications')}>
-              <Ionicons name="notifications-outline" size={ICON_SIZE} color={colors.text} />
-              {notificationCount > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>{notificationCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.hudItem} onPress={() => router.push('/settings')}>
-              <Ionicons name="settings-outline" size={ICON_SIZE} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Bottom Tabs Navigation */}
-        <Tabs
-          screenOptions={{
-            headerShown: false,
-            tabBarShowLabel: false,
-            tabBarActiveTintColor: '#FFA726',
-            tabBarInactiveTintColor: '#64748B',
-            tabBarStyle: {
-              backgroundColor: colors.background,
-              borderTopColor: '#334155',
-              height: height * 0.065,
-              paddingTop: 4,
-              paddingBottom: 4,
-            },
-            tabBarItemStyle: { marginHorizontal: 4 },
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: '#FFA726',
+          tabBarInactiveTintColor: '#94A3B8',
+          tabBarStyle: {
+            backgroundColor: '#1E293B',
+            borderTopColor: '#334155',
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="dashboard"
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
           }}
-        >
-          <Tabs.Screen name="dashboard" options={{ tabBarIcon: ({ color }) => <Feather name="home" size={ICON_SIZE + 3} color={color} /> }} />
-          <Tabs.Screen name="squad" options={{ tabBarIcon: ({ color }) => <AntDesign name="team" size={ICON_SIZE + 3} color={color} /> }} />
-          <Tabs.Screen name="leagueTable" options={{ tabBarIcon: ({ color }) => <Feather name="trello" size={ICON_SIZE + 3} color={color} /> }} />
-          <Tabs.Screen name="transferMarket" options={{ tabBarIcon: ({ color }) => <Feather name="shopping-cart" size={ICON_SIZE + 3} color={color} /> }} />
-          <Tabs.Screen name="leagueScheduleScreen" options={{ tabBarIcon: ({ color }) => <MaterialCommunityIcons name="basketball" size={ICON_SIZE + 3} color={color} /> }} />
-          <Tabs.Screen name="match/[id]" options={{ href: null, headerShown: false }} />
-          <Tabs.Screen name="manageLineup" options={{ href: null, headerShown: false }} />
-          <Tabs.Screen name="settings" options={{ href: null, headerShown: false }} />
-        </Tabs>
-      </View>
+        />
+        <Tabs.Screen
+          name="squad" 
+          options={{
+            title: 'Squad',
+            tabBarIcon: ({ color, size }) => <AntDesign name="team" size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="leagueTable" // This will render the league.tsx file
+          options={{
+            title: 'League',
+            tabBarIcon: ({ color, size }) => <Feather name="trello" size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="transferMarket" // שם הקובץ החדש
+          options={{
+            title: 'Transfers', // שם חדש לטאב
+            tabBarIcon: ({ color, size }) => <Feather name="shopping-cart" size={size} color={color} />, // אייקון חדש
+          }}
+        />
+        <Tabs.Screen
+          name="leagueScheduleScreen" 
+          options={{
+            title: 'Schedule', 
+            tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="basketball" size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="match/[id]"
+          options={{
+            href: null,
+            headerShown: false, 
+          }}
+        />
+        <Tabs.Screen
+          name="manageLineup"
+          options={{
+            href: null,
+            headerShown: false, 
+          }}
+        />
+      </Tabs>
     </GestureHandlerRootView>
   );
 }

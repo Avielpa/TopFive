@@ -1,20 +1,35 @@
+<<<<<<< HEAD
 # file: TopFiveBack/views.py (UPDATED & CLEANED)
+=======
+# In TopFiveBack/views.py
+>>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 
 from django.shortcuts import get_object_or_404
 from django.http import Http404 # נדרש עבור 404 בהיעדר אובייקט
 from rest_framework import generics, status
 from django.db import transaction
 from django.db.models import F, Q
+<<<<<<< HEAD
 from .models import Match, TeamSeasonStats, Player, Team
 from .serializers import MatchSerializer, TeamSeasonStatsSerializer, PlayerSerializer, FullPlayerSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+=======
+from .models import Match, TeamSeasonStats, Player, Team 
+from .serializers import (
+    MatchSerializer, TeamSeasonStatsSerializer, FullPlayerSerializer,
+    TeamTacticsSerializer, PlayerRotationUpdateSerializer # Import new serializers
+)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+>>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 
+# --- Existing Views ---
 class MatchListByLeague(generics.ListAPIView):
     serializer_class = MatchSerializer
-
     def get_queryset(self):
         league_id = self.kwargs.get('league_id')
         # סדר לפי תאריך משחק (וסדר עולה)
@@ -22,14 +37,12 @@ class MatchListByLeague(generics.ListAPIView):
 
 class MatchListAll(generics.ListAPIView):
     serializer_class = MatchSerializer
-
     def get_queryset(self):
         # סדר לפי תאריך משחק (וסדר עולה)
         return Match.objects.all().order_by('match_date')
 
 class LeagueStandingsView(generics.ListAPIView):
     serializer_class = TeamSeasonStatsSerializer
-
     def get_queryset(self):
         league_id = self.kwargs['league_id']
         # **תיקון: מיון לפי שדות קיימים (ניצחונות ונקודות זכות) במקום 'rank'**
@@ -37,6 +50,7 @@ class LeagueStandingsView(generics.ListAPIView):
         return TeamSeasonStats.objects.filter(league=league_id).order_by('-wins', '-points_for')
 
 class TransferMarketListView(generics.ListAPIView):
+<<<<<<< HEAD
     """
     Returns all players who are either free agents (team is null)
     or have been put on the transfer list by their current team.
@@ -68,11 +82,22 @@ class TransferMarketListView(generics.ListAPIView):
                  F('speed') + F('jumping') + F('strength') + F('stamina')) / 13.0
             )
         ).order_by('-calculated_rating') # **תיקון: מיון לפי השם החדש**
+=======
+    serializer_class = FullPlayerSerializer
+    permission_classes = [IsAuthenticated] 
+    def get_queryset(self):
+        user_team = self.request.user.team
+        return Player.objects.filter(
+            Q(team__isnull=True) | Q(is_on_transfer_list=True)
+        ).exclude(
+            team=user_team 
+        ).order_by('-rating') # Simplified ordering
+>>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 
 class BuyPlayerView(APIView):
     permission_classes = [IsAuthenticated]
-
     def post(self, request, player_id):
+<<<<<<< HEAD
         # ודא שהמשתמש מאומת ומשויך לקבוצה
         if not hasattr(request.user, 'team') or request.user.team is None:
             return Response({'detail': 'User is not assigned to a team.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -139,9 +164,14 @@ class SquadView(generics.ListAPIView):
     """
     Returns all players belonging to the currently authenticated user's team.
     """
+=======
+        # ... (logic remains the same)
+        pass
+
+class SquadView(generics.ListAPIView):
+>>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
     serializer_class = FullPlayerSerializer
     permission_classes = [IsAuthenticated]
-
     def get_queryset(self):
         user = self.request.user
         # ודא שלמשתמש יש קבוצה משויכת
@@ -204,6 +234,7 @@ class TeamStandingDetailView(generics.RetrieveAPIView):
         team_id = self.kwargs[self.lookup_field] # עדיף להשתמש ב-self.lookup_field
 
         try:
+<<<<<<< HEAD
             # נסה למצוא את ה-TeamSeasonStats עבור הקבוצה הספציפית
             # אנו מניחים שיש רק אובייקט אחד של TeamSeasonStats לכל קבוצה לעונה נתונה.
             # אם יש מספר אובייקטים, תצטרך להוסיף לוגיקה לבחור את הנכון (למשל, העונה הנוכחית).
@@ -212,3 +243,90 @@ class TeamStandingDetailView(generics.RetrieveAPIView):
         except TeamSeasonStats.DoesNotExist:
             # אם האובייקט לא נמצא, Django מעלה DoesNotExist, ואנו ממירים זאת ל-Http404
             raise Http404("Team standing for this team not found.")
+=======
+            user_team = self.request.user.team
+            return Player.objects.filter(team=user_team)
+        except Team.DoesNotExist:
+            return Player.objects.none()
+
+# --- [NEW] View for Tactics & Rotation ---
+
+class TeamTacticsView(APIView):
+    """
+    Handles getting and updating a team's tactics and player rotations.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Returns the complete tactical data for the user's team.
+        """
+        try:
+            team = request.user.team
+            serializer = TeamTacticsSerializer(team)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Team.DoesNotExist:
+            return Response({"detail": "User is not assigned to a team."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates the team's tactics and player rotation data.
+        """
+        try:
+            team = request.user.team
+        except Team.DoesNotExist:
+            return Response({"detail": "User is not assigned to a team."}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data
+        players_data = data.get('players')
+
+        # Validate incoming players data
+        player_serializer = PlayerRotationUpdateSerializer(data=players_data, many=True)
+        if not player_serializer.is_valid():
+            return Response(player_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            with transaction.atomic():
+                # 1. Update Team-level tactics
+                team.pace = data.get('pace', team.pace)
+                team.offensive_focus_slider = data.get('offensiveFocus', team.offensive_focus_slider)
+                team.defensive_aggressiveness = data.get('defensiveAggressiveness', team.defensive_aggressiveness)
+                
+                # Update key players
+                go_to_guy_id = data.get('goToGuy')
+                defensive_stopper_id = data.get('defensiveStopper')
+                team.go_to_guy_id = go_to_guy_id if go_to_guy_id else None
+                team.defensive_stopper_id = defensive_stopper_id if defensive_stopper_id else None
+                
+                team.save()
+
+                # 2. Update Player-level rotation data
+                validated_players = player_serializer.validated_data
+                player_ids = [p['id'] for p in validated_players]
+                
+                # Fetch all relevant players in a single query
+                players_to_update = Player.objects.filter(id__in=player_ids, team=team)
+                players_map = {p.id: p for p in players_to_update}
+
+                for player_data in validated_players:
+                    player_obj = players_map.get(player_data['id'])
+                    if player_obj:
+                        player_obj.role = player_data['role']
+                        player_obj.position_primary = player_data['position_primary']
+                        player_obj.assigned_minutes = player_data['assigned_minutes']
+                        player_obj.offensive_role = player_data['offensive_role']
+                
+                # Bulk update the players
+                Player.objects.bulk_update(
+                    players_to_update, 
+                    ['role', 'position_primary', 'assigned_minutes', 'offensive_role']
+                )
+
+            return Response({"detail": "Tactics and rotation updated successfully."}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Catch any other exceptions during the transaction
+            return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+>>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
