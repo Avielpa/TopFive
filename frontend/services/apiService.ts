@@ -98,22 +98,6 @@ export const getMatches = async (leagueID: number): Promise<Match[] | undefined>
   }
 };
 
-<<<<<<< HEAD
-export const listPlayerForTransfer = async (playerId: number, price: number): Promise<{ player: FullPlayer }> => {
-    const response = await api.post(`/players/${playerId}/list-transfer/`, { price });
-    return response.data;
-};
-
-export const unlistPlayerFromTransfer = async (playerId: number): Promise<{ player: FullPlayer }> => {
-    const response = await api.post(`/players/${playerId}/unlist-transfer/`);
-    return response.data;
-};
-
-export const releasePlayer = async (playerId: number): Promise<{ released_player_id: number }> => {
-    const response = await api.post(`/players/${playerId}/release/`);
-    return response.data;
-};
-=======
 /**
  * שולף את הסגל (הרוסטר) של קבוצה ספציפית לפי ה-ID שלה.
  * @param teamId ה-ID של הקבוצה עבורה יש לשלוף את הסגל.
@@ -143,4 +127,3 @@ export const getTeamStandingById = async (teamId: number): Promise<TeamStanding>
         throw handleApiError(error, `שגיאה בשליפת סטנדינג עבור קבוצה ${teamId}`);
     }
 };
->>>>>>> d3a291052eeaceb0eb526c6f8e638ba97ffb5dbe
