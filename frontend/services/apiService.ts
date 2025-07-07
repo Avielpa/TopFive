@@ -1,117 +1,129 @@
 // ==============================================================================
-// File: frontend/services/apiService.ts (FINAL & COMPLETE VERSION)
+// File: frontend/services/apiService.ts
 // Description: A dedicated service for all non-authentication API calls related to game logic.
 //              This service utilizes the central 'api' instance from './api' to ensure
 //              all requests are automatically authenticated and handled by the interceptors.
 // ==============================================================================
 import axios, { AxiosError } from 'axios';
-import api from './api'; // Ensure this points to your configured axios instance (frontend/services/api.ts)
-import { Player, TeamStanding, FullPlayer, Match } from '../types/entities'; // Make sure '../types/entities' is up-to-date as provided previously
-
-// --- Game-related API Calls ---
+import api from './api'; // ודא שזה מצביע ל-axios instance המוגדר שלך (frontend/services/api.ts)
+import { Player, TeamStanding, FullPlayer, Match } from '../types/entities'; // ודא שהטיפוסים עדכניים
 
 /**
- * Fetches league standings for a given league ID.
- * @param leagueId The ID of the league to fetch standings for.
- * @returns A promise that resolves to an array of TeamStanding objects.
+ * מטפל בשגיאות Axios באופן מרכזי ומחזיר את פרטי השגיאה.
+ * @param error אובייקט השגיאה.
+ * @param message הודעה לוג מותאמת אישית.
+ * @returns הודעת שגיאה מפורטת או אובייקט השגיאה המקורי.
+ */
+const handleApiError = (error: unknown, message: string): Error => {
+  if (axios.isAxiosError(error)) {
+    console.error(`${message}:`, error.response?.data || error.message);
+    // לזרוק שגיאה עם הנתונים מהשרת אם קיימים, אחרת הודעת השגיאה של Axios
+    throw error.response?.data || new Error(error.message);
+  } else {
+    console.error(`שגיאה בלתי צפויה: ${message}:`, error);
+    throw error; // לזרוק שגיאות לא צפויות גם כן
+  }
+};
+
+/**
+ * שולף את טבלת הליגה עבור ID ליגה נתון.
+ * @param leagueId ה-ID של הליגה עבורה יש לשלוף את הטבלה.
+ * @returns Promise שמחזיר מערך של אובייקטי TeamStanding.
  */
 export const getLeagueStandings = async (leagueId: number): Promise<TeamStanding[]> => {
-    try {
-        const response = await api.get<TeamStanding[]>(`/leagues/${leagueId}/standings/`);
-        return response.data;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error(`Error fetching standings for league ${leagueId}:`, error.response?.data || error.message);
-            throw error.response?.data || new Error(error.message); // Re-throw with more detail
-        } else {
-            console.error('An unexpected error occurred while fetching standings:', error);
-            throw error; // Re-throw to be handled by the component
-        }
-    }
+  try {
+    const response = await api.get<TeamStanding[]>(`/leagues/${leagueId}/standings/`);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, `שגיאה בשליפת טבלת הליגה עבור ליגה ${leagueId}`);
+  }
 };
 
 /**
- * Fetches the list of players available on the transfer market.
- * This includes free agents and players listed by other teams.
- * @returns A promise that resolves to an array of Player objects (which now includes full details).
+ * שולף את רשימת השחקנים הזמינים בשוק ההעברות.
+ * זה כולל שחקנים חופשיים ושחקנים המוצעים על ידי קבוצות אחרות.
+ * @returns Promise שמחזיר מערך של אובייקטי Player (כולל פרטים מלאים כעת).
  */
 export const getTransferList = async (): Promise<Player[]> => {
-    try {
-        // This will now correctly map to the new, more comprehensive Player interface
-        const response = await api.get<Player[]>('/players/transfer-market/');
-        return response.data;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('Error fetching transfer list:', error.response?.data || error.message);
-            throw error.response?.data || new Error(error.message); // Re-throw with more detail
-        } else {
-            console.error('An unexpected error occurred while fetching transfer list:', error);
-            throw error; // Re-throw to be handled by the component
-        }
-    }
+  try {
+    const response = await api.get<Player[]>('/players/transfer-market/');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'שגיאה בשליפת רשימת ההעברות');
+  }
 };
 
 /**
- * Initiates a player purchase transaction.
- * @param playerId The ID of the player to buy.
- * @param contractYears The number of years for the player's contract (1-5).
- * @returns A promise that resolves to the transaction result (e.g., success message, new budget, bought player ID).
+ * יוזם עסקת רכישת שחקן.
+ * @param playerId ה-ID של השחקן לרכישה.
+ * @param contractYears מספר שנות החוזה של השחקן (1-5).
+ * @returns Promise שמחזיר את תוצאת העסקה (לדוגמה, הודעת הצלחה, תקציב מעודכן, ID של השחקן שנרכש).
  */
-export const buyPlayer = async (playerId: number, contractYears: number) => { // Added contractYears parameter
-    try {
-        const response = await api.post(`/players/${playerId}/buy/`, { contract_years: contractYears }); // Send contract_years in request body
-        return response.data; // Will return success message, updated budget, and player_id
-    } catch (error: any) { // Use 'any' for error to access .response safely
-        if (axios.isAxiosError(error)) {
-            console.error('Error buying player:', error.response?.data || error.message);
-            throw error.response?.data || new Error(error.message); // Re-throw with more detail
-        } else {
-            console.error('An unexpected error occurred while buying player:', error);
-            throw error;
-        }
-    }
+export const buyPlayer = async (playerId: number, contractYears: number) => {
+  try {
+    const response = await api.post(`/players/${playerId}/buy/`, { contract_years: contractYears });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, `שגיאה ברכישת שחקן ${playerId}`);
+  }
 };
 
 /**
- * Fetches the squad (roster) of the currently authenticated user's team.
- * @returns A promise that resolves to an array of FullPlayer objects.
+ * שולף את הסגל (הרוסטר) של הקבוצה של המשתמש המאומת.
+ * @returns Promise שמחזיר מערך של אובייקטי FullPlayer.
  */
 export const getSquad = async (): Promise<FullPlayer[]> => {
-    try {
-        const response = await api.get<FullPlayer[]>('/team/squad/');
-        return response.data;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('Error fetching squad:', error.response?.data || error.message);
-            throw error.response?.data || new Error(error.message);
-        } else {
-            console.error('An unexpected error occurred while fetching squad:', error);
-            throw error;
-        }
-    }
+  try {
+    const response = await api.get<FullPlayer[]>('/team/squad/');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'שגיאה בשליפת סגל הקבוצה');
+  }
 };
 
 /**
- * Fetches matches for a specific league.
- * @param leagueID The ID of the league to fetch matches for.
- * @returns A promise that resolves to an array of Match objects, or undefined on error.
+ * שולף משחקים עבור ליגה ספציפית.
+ * @param leagueID ה-ID של הליגה עבורה יש לשלוף משחקים.
+ * @returns Promise שמחזיר מערך של אובייקטי Match, או undefined במקרה של שגיאה.
  */
 export const getMatches = async (leagueID: number): Promise<Match[] | undefined> => {
-    try {
-        const response = await api.get<Match[]>(`matches/${leagueID}/`);
-        return response.data;
-    } catch (err) {
-        console.error("Error Fetching Matches:", err);
-        if (axios.isAxiosError(err)) {
-            console.error("Axios Error Details:", err.response?.data || err.message);
-            // You can choose to re-throw here if you want calling components to catch it
-            // throw err.response?.data || new Error(err.message); 
-        }
-        return undefined; // Or [] if you prefer an empty array on error
-    }
+  try {
+    const response = await api.get<Match[]>(`matches/${leagueID}/`);
+    return response.data;
+  } catch (error) {
+    // עבור שגיאות בשליפת משחקים, אנו מחזירים undefined במקום לזרוק שגיאה
+    // כדי לא לשבור את ה-UI שמציג לוח זמנים של משחקים.
+    console.error(`שגיאה בשליפת משחקים עבור ליגה ${leagueID}:`, (error as AxiosError).response?.data || (error as Error).message);
+    return undefined;
+  }
 };
 
-// Add any other API calls related to game logic here...
-// For example:
-// export const updateTeamTactics = async (tacticsData: any) => { ... };
-// export const trainPlayer = async (playerId: number, trainingType: string) => { ... };
+/**
+ * שולף את הסגל (הרוסטר) של קבוצה ספציפית לפי ה-ID שלה.
+ * @param teamId ה-ID של הקבוצה עבורה יש לשלוף את הסגל.
+ * @returns Promise שמחזיר מערך של אובייקטי FullPlayer.
+ */
+export const getTeamSquad = async (teamId: number): Promise<FullPlayer[]> => {
+  try {
+    const response = await api.get<FullPlayer[]>(`/teams/${teamId}/squad/`);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, `שגיאה בשליפת סגל עבור קבוצה ${teamId}`);
+  }
+};
+
+/**
+ * שולף את הסטטיסטיקות העונתיות (TeamStanding) עבור קבוצה ספציפית לפי ה-ID שלה.
+ * @param teamId ה-ID של הקבוצה עבורה יש לשלוף את הסטנדינג.
+ * @returns Promise שמחזיר אובייקט TeamStanding יחיד.
+ */
+export const getTeamStandingById = async (teamId: number): Promise<TeamStanding> => {
+    try {
+        // הנתיב /api/teams/{teamId}/standing/ מניח שיש לך View ב-Backend
+        // שמחזיר אובייקט TeamStanding יחיד עבור ה-ID הנתון.
+        const response = await api.get<TeamStanding>(`/teams/${teamId}/standing/`);
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error, `שגיאה בשליפת סטנדינג עבור קבוצה ${teamId}`);
+    }
+};
