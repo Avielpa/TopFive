@@ -224,6 +224,12 @@ class Player(models.Model):
         default=0,
         verbose_name="Assigned Minutes"
     )
+
+    asking_price = models.PositiveIntegerField(
+        null=True, 
+        blank=True, 
+        verbose_name="Asking Price"
+    )
     
     @property
     def rating(self):

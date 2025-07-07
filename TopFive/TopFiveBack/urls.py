@@ -11,7 +11,9 @@ from .views import (
     TeamStandingDetailView, # ייבוא ה-View החדש לסטטיסטיקת קבוצה בודדת
     MatchListAll, MatchListByLeague, 
     LeagueStandingsView, TransferMarketListView, BuyPlayerView, SquadView,
-    TeamTacticsView # Import the new view
+
+    TeamTacticsView,ListPlayerForTransferView, UnlistPlayerFromTransferView, ReleasePlayerView # Import the new view
+
 )
 
 urlpatterns = [
@@ -36,9 +38,11 @@ urlpatterns = [
     # ודא ש-TeamStandingDetailView מחזיר אובייקט TeamStanding יחיד (לא רשימה).
     path('teams/<int:team_id>/standing/', TeamStandingDetailView.as_view(), name='team-standing-detail'),
     path('team/squad/', SquadView.as_view(), name='team-squad'),
-    
-    # [NEW] URL for getting and updating team tactics and rotation
     path('team/tactics/', TeamTacticsView.as_view(), name='team-tactics'),
+    path('players/<int:player_id>/list-transfer/', ListPlayerForTransferView.as_view(), name='player-list-transfer'),
+    path('players/<int:player_id>/unlist-transfer/', UnlistPlayerFromTransferView.as_view(), name='player-unlist-transfer'),
+    path('players/<int:player_id>/release/', ReleasePlayerView.as_view(), name='player-release'),
+
 ]
 
 

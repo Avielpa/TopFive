@@ -69,6 +69,7 @@ class FullPlayerSerializer(serializers.ModelSerializer):
             'role', 'offensive_role', 'assigned_minutes', 
         ]
 
+        
 
 # --- [NEW] Serializers for Tactics & Rotation Screen ---
 
