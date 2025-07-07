@@ -15,7 +15,6 @@ class MatchSerializer(serializers.ModelSerializer):
             'match_date', 'match_round', 'home_team_score', 'away_team_score', 'completed',
         ]
 
-<<<<<<< HEAD
 
 class PlayerSerializer(serializers.ModelSerializer):
     # שדה ה-rating הזה עדיין מתייחס ל-@property 'rating' במודל
@@ -26,8 +25,6 @@ class PlayerSerializer(serializers.ModelSerializer):
         model = Player
         fields = ['id', 'first_name', 'last_name', 'age', 'position_primary', 'rating', 'market_value', 'team_name']
 
-=======
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 class TeamSeasonStatsSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(source='team.name', read_only=True)
     win_percentage = serializers.FloatField(read_only=True)
@@ -68,13 +65,10 @@ class FullPlayerSerializer(serializers.ModelSerializer):
             'shooting_2p', 'shooting_3p', 'free_throws', 'rebound_def',
             'rebound_off', 'passing', 'blocking', 'defense', 'game_iq',
             'speed', 'jumping', 'strength', 'stamina', 'fitness', 'is_injured',
-<<<<<<< HEAD
             # גם role ו-offensive_role אם אתה רוצה שהם יהיו זמינים כאן:
             'role', 'offensive_role', 'assigned_minutes', 
         ]
-=======
-            'role', 'offensive_role', 'assigned_minutes', 
-        ]
+
 
 # --- [NEW] Serializers for Tactics & Rotation Screen ---
 
@@ -123,4 +117,3 @@ class PlayerRotationUpdateSerializer(serializers.Serializer):
     minutes = serializers.IntegerField(min_value=0, max_value=48, source='assigned_minutes')
     offensive_role = serializers.ChoiceField(choices=Player.OFFENSIVE_ROLE_CHOICES)
 
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d

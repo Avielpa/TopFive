@@ -135,8 +135,10 @@ export default function RootLayout() {
         <AuthProvider>
             <SettingsProvider>
                 <SetupRTL />
-                <InitialLayout />
+            <InitialLayout />
             </SettingsProvider>
         </AuthProvider>
     );
 }
+
+

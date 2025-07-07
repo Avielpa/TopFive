@@ -1,22 +1,17 @@
-<<<<<<< HEAD
 # file: TopFiveBack/views.py (UPDATED & CLEANED)
-=======
 # In TopFiveBack/views.py
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 
 from django.shortcuts import get_object_or_404
 from django.http import Http404 # נדרש עבור 404 בהיעדר אובייקט
 from rest_framework import generics, status
 from django.db import transaction
 from django.db.models import F, Q
-<<<<<<< HEAD
 from .models import Match, TeamSeasonStats, Player, Team
 from .serializers import MatchSerializer, TeamSeasonStatsSerializer, PlayerSerializer, FullPlayerSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-=======
 from .models import Match, TeamSeasonStats, Player, Team 
 from .serializers import (
     MatchSerializer, TeamSeasonStatsSerializer, FullPlayerSerializer,
@@ -25,7 +20,6 @@ from .serializers import (
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 
 # --- Existing Views ---
 class MatchListByLeague(generics.ListAPIView):
@@ -50,7 +44,6 @@ class LeagueStandingsView(generics.ListAPIView):
         return TeamSeasonStats.objects.filter(league=league_id).order_by('-wins', '-points_for')
 
 class TransferMarketListView(generics.ListAPIView):
-<<<<<<< HEAD
     """
     Returns all players who are either free agents (team is null)
     or have been put on the transfer list by their current team.
@@ -82,7 +75,6 @@ class TransferMarketListView(generics.ListAPIView):
                  F('speed') + F('jumping') + F('strength') + F('stamina')) / 13.0
             )
         ).order_by('-calculated_rating') # **תיקון: מיון לפי השם החדש**
-=======
     serializer_class = FullPlayerSerializer
     permission_classes = [IsAuthenticated] 
     def get_queryset(self):
@@ -92,12 +84,10 @@ class TransferMarketListView(generics.ListAPIView):
         ).exclude(
             team=user_team 
         ).order_by('-rating') # Simplified ordering
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
 
 class BuyPlayerView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, player_id):
-<<<<<<< HEAD
         # ודא שהמשתמש מאומת ומשויך לקבוצה
         if not hasattr(request.user, 'team') or request.user.team is None:
             return Response({'detail': 'User is not assigned to a team.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -160,16 +150,9 @@ class BuyPlayerView(APIView):
         except Exception as e:
             return Response({'detail': f'Transaction failed due to an unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class SquadView(generics.ListAPIView):
-    """
-    Returns all players belonging to the currently authenticated user's team.
-    """
-=======
-        # ... (logic remains the same)
-        pass
+
 
 class SquadView(generics.ListAPIView):
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d
     serializer_class = FullPlayerSerializer
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
@@ -234,7 +217,6 @@ class TeamStandingDetailView(generics.RetrieveAPIView):
         team_id = self.kwargs[self.lookup_field] # עדיף להשתמש ב-self.lookup_field
 
         try:
-<<<<<<< HEAD
             # נסה למצוא את ה-TeamSeasonStats עבור הקבוצה הספציפית
             # אנו מניחים שיש רק אובייקט אחד של TeamSeasonStats לכל קבוצה לעונה נתונה.
             # אם יש מספר אובייקטים, תצטרך להוסיף לוגיקה לבחור את הנכון (למשל, העונה הנוכחית).
@@ -243,7 +225,6 @@ class TeamStandingDetailView(generics.RetrieveAPIView):
         except TeamSeasonStats.DoesNotExist:
             # אם האובייקט לא נמצא, Django מעלה DoesNotExist, ואנו ממירים זאת ל-Http404
             raise Http404("Team standing for this team not found.")
-=======
             user_team = self.request.user.team
             return Player.objects.filter(team=user_team)
         except Team.DoesNotExist:
@@ -329,4 +310,3 @@ class TeamTacticsView(APIView):
         except Exception as e:
             # Catch any other exceptions during the transaction
             return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
->>>>>>> 2800fea9912c810915cea59ee79383166dd2080d

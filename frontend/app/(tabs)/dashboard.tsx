@@ -6,7 +6,6 @@ import { getMatches, getLeagueStandings, getSquad } from '../../services/apiServ
 import { Match, TeamStanding, FullPlayer } from '../../types/entities';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// ייבוא הקומפוננטות החדשות
 import DashboardHeader from '../../components/dashboard/DashboardHeader';
 import NextMatchCard from '../../components/dashboard/NextMatchCard';
 import TeamStatusCard from '../../components/dashboard/TeamStatusCard';
