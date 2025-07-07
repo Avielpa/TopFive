@@ -2,10 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ImageBackground, Alert, Dimensions } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { getMatches } from '@/services/apiService';
-import { Match } from '@/types/entities';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { getMatches, getLeagueStandings, getSquad } from '../../services/apiService';
+import { Match, TeamStanding, FullPlayer } from '../../types/entities';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // ייבוא הקומפוננטות החדשות
@@ -129,47 +127,27 @@ export default function DashboardScreen() {
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
-      <LinearGradient
-        colors={['rgba(15, 23, 42, 0.9)', 'rgba(15, 23, 42, 0.7)']}
-        style={styles.overlay}
-      >
-        {userInfo && (
-          <TouchableOpacity onPress={confirmLogout} style={styles.logoutButton}>
-            <FontAwesome name="sign-out" size={16} color="#FFF" style={{ marginRight: 6 }} />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        )}
+      <LinearGradient colors={['#0f172aee', '#1e293bcc', '#0f172aee']} style={styles.overlay}>
 
-        <View style={styles.container}>
-          <View style={styles.leftPanel}>
-            <Text style={styles.header}>Welcome, Coach {userInfo.username}!</Text>
+        {/* Header Bar */}
+        <DashboardHeader
+          teamName={userInfo?.team_name || 'N/A'}
+          leagueName={userInfo?.league_name || 'N/A'}
+          overallRating={userInfo?.overall_rating || 'N/A'}
+          onLogout={confirmLogout}
+        />
 
-            <View style={styles.teamCard}>
-              <LinearGradient
-                colors={['#1E293B', '#334155']}
-                style={styles.teamCardGradient}
-              >
-                <MaterialIcons name="sports-soccer" size={32} color="#FFA726" />
-                <Text style={styles.teamName}>{userInfo.team_name}</Text>
-                
-                <View style={styles.detailRow}>
-                  <FontAwesome name="money" size={16} color="#CBD5E1" />
-                  <Text style={styles.detailText}>Budget: <Text style={styles.highlight}>{userInfo.budget.toLocaleString()}$</Text></Text>
-                </View>
-                
-                <View style={styles.detailRow}>
-                  <FontAwesome name="trophy" size={16} color="#CBD5E1" />
-                  <Text style={styles.detailText}>League: <Text style={styles.highlight}>{userInfo.league_name}</Text></Text>
-                </View>
+        {/* Main Dashboard Grid */}
+        <View style={styles.dashboardGrid}>
 
-                <View style={styles.ratingContainer}>
-                  <Text style={styles.ratingLabel}>Team Rating</Text>
-                  <View style={styles.ratingCircle}>
-                    <Text style={styles.ratingValue}>{userInfo.overall_rating}</Text>
-                  </View>
-                </View>
-              </LinearGradient>
-            </View>
+          {/* Row 1: Next Match & Team Status */}
+          <View style={styles.gridRow}>
+            <NextMatchCard nextMatch={nextMatch} teamName={userInfo?.team_name || 'N/A'} />
+            <TeamStatusCard
+              morale={getTeamMorale()}
+              fitness={getTeamFitness()}
+              vibe={getTeamVibe()}
+            />
           </View>
 
           {/* Row 2: Financial Overview, Team Stats & Alerts */}

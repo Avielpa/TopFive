@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Match } from '@/types/entities'; // ודא ייבוא נכון
+import { Match } from '../../types/entities'; // ודא ייבוא נכון
 import { router } from 'expo-router'; // ודא ייבוא נכון
 
 const { width } = Dimensions.get('window'); // במידה ו-width רלוונטי כאן
