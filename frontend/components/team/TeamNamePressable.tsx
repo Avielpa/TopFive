@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import TeamCardModal from './TeamCard'; // ודא נתיב נכון
-import { TeamStanding } from '@/types/entities'; // ודא נתיב נכון
+import { TeamStanding } from '../../types/entities'; // ודא נתיב נכון
 import { getTeamStandingById } from '../../services/apiService'; // פונקציה חדשה שצריך ליצור ב-apiService
 
 interface TeamNamePressableProps {

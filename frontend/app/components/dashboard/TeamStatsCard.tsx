@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TeamStanding, FullPlayer } from '../../types/entities'; // ודא ייבוא נכון
+import { TeamStanding, FullPlayer } from '../../../types/entities'; // ודא ייבוא נכון
 
 const { width } = Dimensions.get('window');
 

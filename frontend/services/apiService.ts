@@ -127,3 +127,46 @@ export const getTeamStandingById = async (teamId: number): Promise<TeamStanding>
         throw handleApiError(error, `שגיאה בשליפת סטנדינג עבור קבוצה ${teamId}`);
     }
 };
+
+/**
+ * מעמיד שחקן למכירה ברשימת ההעברות.
+ * @param playerId ה-ID של השחקן.
+ * @param askingPrice המחיר המבוקש עבור השחקן.
+ * @returns Promise עם פרטי השחקן המעודכנים.
+ */
+export const listPlayerForTransfer = async (playerId: number, askingPrice: number) => {
+    try {
+        const response = await api.post(`/players/${playerId}/list-transfer/`, { price: askingPrice });
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error, `Failed to list player ${playerId} for transfer`);
+    }
+};
+
+/**
+ * מסיר שחקן מרשימת ההעברות.
+ * @param playerId ה-ID של השחקן.
+ * @returns Promise עם פרטי השחקן המעודכנים.
+ */
+export const unlistPlayerFromTransfer = async (playerId: number) => {
+    try {
+        const response = await api.post(`/players/${playerId}/unlist-transfer/`);
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error, `Failed to unlist player ${playerId} from transfer`);
+    }
+};
+
+/**
+ * משחרר שחקן מהקבוצה (מסיים את החוזה שלו).
+ * @param playerId ה-ID של השחקן לשחרור.
+ * @returns Promise עם ID השחקן ששוחרר והתקציב החדש של הקבוצה.
+ */
+export const releasePlayer = async (playerId: number) => {
+    try {
+        const response = await api.post(`/players/${playerId}/release/`);
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error, `Failed to release player ${playerId}`);
+    }
+};

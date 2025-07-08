@@ -282,11 +282,11 @@ export default function TabsLayout() {
       >
           <Tabs.Screen name="dashboard" options={{ tabBarIcon: ({ color }) => <Feather name="home" size={ICON_SIZE + 3} color={color} /> }} />
           <Tabs.Screen name="squad" options={{ tabBarIcon: ({ color }) => <AntDesign name="team" size={ICON_SIZE + 3} color={color} /> }} />
+          <Tabs.Screen name="manageLineup" options={{ tabBarIcon: ({ color }) => <MaterialCommunityIcons name="strategy" size={ICON_SIZE + 3} color={color} /> }} />
           <Tabs.Screen name="leagueTable" options={{ tabBarIcon: ({ color }) => <Feather name="trello" size={ICON_SIZE + 3} color={color} /> }} />
           <Tabs.Screen name="transferMarket" options={{ tabBarIcon: ({ color }) => <Feather name="shopping-cart" size={ICON_SIZE + 3} color={color} /> }} />
           <Tabs.Screen name="leagueScheduleScreen" options={{ tabBarIcon: ({ color }) => <MaterialCommunityIcons name="basketball" size={ICON_SIZE + 3} color={color} /> }} />
           <Tabs.Screen name="match/[id]" options={{ href: null, headerShown: false }} />
-          <Tabs.Screen name="manageLineup" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="settings" options={{ href: null, headerShown: false }} />
       </Tabs>
       </View>

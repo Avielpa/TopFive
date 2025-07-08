@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TeamStanding, FullPlayer } from '@/types/entities';
+import { TeamStanding, FullPlayer } from '../../types/entities';
 import { getTeamSquad } from '../../services/apiService';
 
 const { width, height } = Dimensions.get('window');
